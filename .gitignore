@@ -3,7 +3,10 @@
 /local.properties
 /.idea
 .DS_Store
+# Root and all module build dirs
 /build
+**/build/
+**/build
 /captures
 .externalNativeBuild
 .cxx
@@ -12,3 +15,7 @@ local.properties
 *.aab
 *.ap_
 *.dex
+# Kotlin compiler sessions
+.kotlin/
+# R8/ProGuard mapping (large file)
+**/mapping.txt
