@@ -111,7 +111,6 @@ fun FileManagerScreen(
                         }
                     },
                     actions = {
-
                         IconButton(onClick = onNavigateToStorage) {
                             Icon(Icons.Default.PieChart, "Storage Analyzer")
                         }
