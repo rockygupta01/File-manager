@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.rocky.filemanager.app-debug-78:/xml_data_extraction_rules.xml.flat",
+        "source": "com.rocky.filemanager.app-main-80:/xml/data_extraction_rules.xml"
+    }
+]
