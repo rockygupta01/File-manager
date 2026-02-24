@@ -25,6 +25,16 @@ class SearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
+    fun toggleSearchContent() {
+        _uiState.value = _uiState.value.copy(searchContent = !_uiState.value.searchContent)
+        if (_uiState.value.query.isNotBlank()) onQueryChange(_uiState.value.query)
+    }
+
+    fun toggleSearchMetadata() {
+        _uiState.value = _uiState.value.copy(searchMetadata = !_uiState.value.searchMetadata)
+        if (_uiState.value.query.isNotBlank()) onQueryChange(_uiState.value.query)
+    }
+
     fun onQueryChange(query: String) {
         _uiState.value = _uiState.value.copy(query = query)
         
@@ -39,7 +49,13 @@ class SearchViewModel @Inject constructor(
             delay(500) // Debounce
             
             val rootPath = Environment.getExternalStorageDirectory().absolutePath
-            when (val result = fileRepository.searchFiles(query, rootPath)) {
+            val state = _uiState.value
+            when (val result = fileRepository.searchFiles(
+                query = query, 
+                rootPath = rootPath,
+                searchContent = state.searchContent,
+                searchMetadata = state.searchMetadata
+            )) {
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         results = result.data,
@@ -62,5 +78,7 @@ data class SearchUiState(
     val query: String = "",
     val results: List<FileItem> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val searchContent: Boolean = false,
+    val searchMetadata: Boolean = false
 )

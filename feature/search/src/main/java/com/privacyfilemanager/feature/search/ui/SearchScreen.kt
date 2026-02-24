@@ -53,11 +53,32 @@ fun SearchScreen(
             )
         }
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = uiState.searchContent,
+                    onClick = { viewModel.toggleSearchContent() },
+                    label = { Text("Search Content") }
+                )
+                FilterChip(
+                    selected = uiState.searchMetadata,
+                    onClick = { viewModel.toggleSearchMetadata() },
+                    label = { Text("Search Metadata") }
+                )
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
             when {
                 uiState.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

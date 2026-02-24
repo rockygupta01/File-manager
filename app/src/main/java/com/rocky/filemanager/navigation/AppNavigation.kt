@@ -7,13 +7,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.privacyfilemanager.feature.appmanager.ui.AppManagerScreen
+import com.privacyfilemanager.feature.archive.ui.ArchiveScreen
 import com.privacyfilemanager.feature.filemanager.ui.FileManagerScreen
 import com.privacyfilemanager.feature.search.ui.SearchScreen
 import com.privacyfilemanager.feature.security.ui.SecurityVaultScreen
 import com.privacyfilemanager.feature.storage.ui.StorageAnalyzerScreen
+import com.privacyfilemanager.feature.viewer.ui.ViewerScreen
 
 @Composable
 fun AppNavigation() {
@@ -24,7 +29,16 @@ fun AppNavigation() {
             FileManagerScreen(
                 onNavigateToStorage = { navController.navigate("storage") },
                 onNavigateToSearch = { navController.navigate("search") },
-                onNavigateToSettings = { navController.navigate("security") }
+                onNavigateToSettings = { navController.navigate("security") },
+                onNavigateToArchive = { paths, mode ->
+                    val encodedPaths = android.net.Uri.encode(paths.joinToString(","))
+                    navController.navigate("archive?paths=$encodedPaths&mode=$mode")
+                },
+                onNavigateToViewer = { path ->
+                    val encodedPath = android.net.Uri.encode(path)
+                    navController.navigate("viewer?path=$encodedPath")
+                },
+                onNavigateToAppManager = { navController.navigate("appmanager") }
             )
         }
         composable("storage") {
@@ -39,6 +53,32 @@ fun AppNavigation() {
         }
         composable("search") {
             SearchScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "archive?paths={paths}&mode={mode}",
+            arguments = listOf(
+                navArgument("paths") { type = NavType.StringType; defaultValue = "" },
+                navArgument("mode") { type = NavType.StringType; defaultValue = "compress" }
+            )
+        ) {
+            ArchiveScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "viewer?path={path}",
+            arguments = listOf(
+                navArgument("path") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) {
+            ViewerScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("appmanager") {
+            AppManagerScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

@@ -213,17 +213,60 @@ class LocalFileRepository @Inject constructor() : FileRepository {
     override suspend fun searchFiles(
         query: String,
         rootPath: String,
-        mimeTypeFilter: String?
+        mimeTypeFilter: String?,
+        searchContent: Boolean,
+        searchMetadata: Boolean
     ): Result<List<FileItem>> = withContext(Dispatchers.IO) {
         try {
             val root = File(rootPath)
             val results = mutableListOf<FileItem>()
 
             root.walkTopDown()
-                .maxDepth(10)
-                .filter { it.name.contains(query, ignoreCase = true) }
+                .maxDepth(15) // slightly deeper for advanced search
+                .filter { it.isFile }
                 .filter { mimeTypeFilter == null || FileUtils.getMimeType(it).startsWith(mimeTypeFilter) }
-                .take(200) // Limit results
+                .filter { file ->
+                    val nameMatch = file.name.contains(query, ignoreCase = true)
+                    var contentMatch = false
+                    var metadataMatch = false
+
+                    if (!nameMatch) {
+                        val category = FileUtils.getFileCategory(file)
+                        
+                        // Content Search
+                        if (searchContent && category == FileCategory.TEXT) {
+                            if (file.length() < 1024 * 1024) { // Only read files < 1MB
+                                val content = try { file.readText() } catch (e: Exception) { "" }
+                                contentMatch = content.contains(query, ignoreCase = true)
+                            }
+                        }
+
+                        // Metadata Search
+                        if (searchMetadata) {
+                            if (category == FileCategory.IMAGE) {
+                                try {
+                                    val exif = android.media.ExifInterface(file.absolutePath)
+                                    val model = exif.getAttribute(android.media.ExifInterface.TAG_MODEL) ?: ""
+                                    val make = exif.getAttribute(android.media.ExifInterface.TAG_MAKE) ?: ""
+                                    metadataMatch = model.contains(query, ignoreCase = true) || make.contains(query, ignoreCase = true)
+                                } catch (e: Exception) {}
+                            } else if (category == FileCategory.AUDIO) {
+                                try {
+                                    val mmr = android.media.MediaMetadataRetriever()
+                                    mmr.setDataSource(file.absolutePath)
+                                    val title = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_TITLE) ?: ""
+                                    val artist = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: ""
+                                    val album = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ALBUM) ?: ""
+                                    metadataMatch = title.contains(query, ignoreCase = true) || artist.contains(query, ignoreCase = true) || album.contains(query, ignoreCase = true)
+                                    mmr.release()
+                                } catch (e: Exception) {}
+                            }
+                        }
+                    }
+
+                    nameMatch || contentMatch || metadataMatch
+                }
+                .take(100) // Limit results
                 .forEach { results.add(it.toFileItem()) }
 
             Result.Success(results)

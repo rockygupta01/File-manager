@@ -61,7 +61,9 @@ interface FileRepository {
     suspend fun searchFiles(
         query: String,
         rootPath: String,
-        mimeTypeFilter: String? = null
+        mimeTypeFilter: String? = null,
+        searchContent: Boolean = false,
+        searchMetadata: Boolean = false
     ): Result<List<FileItem>>
 
     /**

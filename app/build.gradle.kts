@@ -61,6 +61,9 @@ dependencies {
     implementation(project(":feature:storage"))
     implementation(project(":feature:security"))
     implementation(project(":feature:search"))
+    implementation(project(":feature:archive"))
+    implementation(project(":feature:viewer"))
+    implementation(project(":feature:appmanager"))
     
     // Core
     implementation(libs.androidx.core.ktx)

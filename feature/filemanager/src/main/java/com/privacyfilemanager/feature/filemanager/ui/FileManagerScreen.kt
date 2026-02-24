@@ -38,7 +38,10 @@ fun FileManagerScreen(
     viewModel: FileManagerViewModel = hiltViewModel(),
     onNavigateToStorage: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToArchive: (List<String>, String) -> Unit = { _, _ -> },
+    onNavigateToViewer: (String) -> Unit = {},
+    onNavigateToAppManager: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val clipboard by viewModel.clipboard.collectAsStateWithLifecycle()
@@ -57,6 +60,12 @@ fun FileManagerScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = { 
+                            onNavigateToArchive(uiState.selectedFiles.toList(), "compress")
+                            viewModel.clearSelection()
+                        }) {
+                            Icon(Icons.Default.FolderZip, "Compress")
+                        }
                         IconButton(onClick = { viewModel.selectAll() }) {
                             Icon(Icons.Default.SelectAll, "Select all")
                         }
@@ -98,6 +107,9 @@ fun FileManagerScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = onNavigateToAppManager) {
+                            Icon(Icons.Default.Android, "App Manager")
+                        }
                         IconButton(onClick = onNavigateToStorage) {
                             Icon(Icons.Default.PieChart, "Storage Analyzer")
                         }
@@ -206,14 +218,32 @@ fun FileManagerScreen(
                         FileListView(
                             files = uiState.files,
                             selectedFiles = uiState.selectedFiles,
-                            onFileClick = { viewModel.openFile(it) },
+                            onFileClick = { 
+                                when (it.category) {
+                                    FileCategory.ARCHIVE -> onNavigateToArchive(listOf(it.path), "extract")
+                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO, 
+                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> {
+                                        onNavigateToViewer(it.path)
+                                    }
+                                    else -> viewModel.openFile(it)
+                                }
+                            },
                             onFileLongClick = { viewModel.toggleSelection(it.path) }
                         )
                     } else {
                         FileGridView(
                             files = uiState.files,
                             selectedFiles = uiState.selectedFiles,
-                            onFileClick = { viewModel.openFile(it) },
+                            onFileClick = { 
+                                when (it.category) {
+                                    FileCategory.ARCHIVE -> onNavigateToArchive(listOf(it.path), "extract")
+                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO, 
+                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> {
+                                        onNavigateToViewer(it.path)
+                                    }
+                                    else -> viewModel.openFile(it)
+                                }
+                            },
                             onFileLongClick = { viewModel.toggleSelection(it.path) }
                         )
                     }

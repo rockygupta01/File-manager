@@ -4,7 +4,7 @@
             "outputFile": "com.rocky.filemanager.app-mergeDebugResources-76:/values-v31/values-v31.xml",
             "map": [
                 {
-                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/1d4edea0e242acb2340ba337f2bfb730/transformed/core-splashscreen-1.0.1/res/values-v31/values-v31.xml",
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/a56a4e6e740b29227337b2b7fac60b96/transformed/core-splashscreen-1.0.1/res/values-v31/values-v31.xml",
                     "from": {
                         "startLines": "2,9",
                         "startColumns": "4,4",
