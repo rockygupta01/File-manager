@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,12 +23,15 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.privacyfilemanager.core.ui.theme.PrivacyFileManagerTheme
 import com.rocky.filemanager.navigation.AppNavigation
 import com.rocky.filemanager.navigation.PermissionScreen
+import com.rocky.filemanager.ui.OnboardingScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private var hasStoragePermission by mutableStateOf(false)
+    private var showOnboarding by mutableStateOf(false)  // #1
+    private var isDarkTheme by mutableStateOf<Boolean?>(null)  // #22: null = follow system
 
     private val storagePermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -46,20 +50,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // #1: Show onboarding only on first launch
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        showOnboarding = !prefs.getBoolean("onboarding_done", false)
+
         hasStoragePermission = checkStoragePermission()
 
         setContent {
-            PrivacyFileManagerTheme {
+            // #22: Dark/Light theme — null = follow system
+            val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+            PrivacyFileManagerTheme(darkTheme = isDarkTheme ?: systemDark) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (hasStoragePermission) {
-                        AppNavigation()
-                    } else {
-                        PermissionScreen(
+                    when {
+                        showOnboarding -> OnboardingScreen(
+                            onGetStarted = {
+                                prefs.edit().putBoolean("onboarding_done", true).apply()
+                                showOnboarding = false
+                            }
+                        )
+                        !hasStoragePermission -> PermissionScreen(
                             onRequestPermission = { requestStoragePermission() }
                         )
+                        else -> AppNavigation()
                     }
                 }
             }

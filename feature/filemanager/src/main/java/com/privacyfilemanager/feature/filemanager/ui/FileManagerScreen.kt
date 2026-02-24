@@ -61,17 +61,15 @@ fun FileManagerScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var previewFile by remember { mutableStateOf<com.privacyfilemanager.core.domain.model.FileItem?>(null) } // #23
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
     val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
     val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
 
-    // fileToOpen: cleared immediately after first use
     val fileToOpen = uiState.fileToOpen
     androidx.compose.runtime.LaunchedEffect(fileToOpen) {
         fileToOpen?.let { viewModel.clearFileToOpen() }
     }
-
-    // #7: System back press navigates up in file tree, not out of app
     androidx.activity.compose.BackHandler(enabled = !isAtRoot) {
         viewModel.navigateUp()
     }
@@ -296,6 +294,12 @@ fun FileManagerScreen(
                     onSegmentClick = { viewModel.navigateTo(it) }
                 )
             }
+            // #16 Storage bar — shown only at root
+            if (isAtRoot) {
+                uiState.storageInfo?.let { info ->
+                    StorageBar(storageInfo = info)
+                }
+            }
             Box(modifier = Modifier.weight(1f)) {
 
             when {
@@ -360,33 +364,41 @@ fun FileManagerScreen(
                         FileListView(
                             files = uiState.files,
                             selectedFiles = uiState.selectedFiles,
-                            onFileClick = { 
+                            onFileClick = {
                                 when (it.category) {
                                     FileCategory.ARCHIVE -> onNavigateToArchive(listOf(it.path), "extract")
-                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO, 
-                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> {
-                                        onNavigateToViewer(it.path)
-                                    }
+                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO,
+                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> onNavigateToViewer(it.path)
                                     else -> viewModel.openFile(it)
                                 }
                             },
-                            onFileLongClick = { viewModel.toggleSelection(it.path) }
+                            onFileLongClick = {
+                                if (it.category == FileCategory.IMAGE || it.category == FileCategory.VIDEO) {
+                                    previewFile = it // #23 show quick preview for images/video
+                                } else {
+                                    viewModel.toggleSelection(it.path)
+                                }
+                            }
                         )
                     } else {
                         FileGridView(
                             files = uiState.files,
                             selectedFiles = uiState.selectedFiles,
-                            onFileClick = { 
+                            onFileClick = {
                                 when (it.category) {
                                     FileCategory.ARCHIVE -> onNavigateToArchive(listOf(it.path), "extract")
-                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO, 
-                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> {
-                                        onNavigateToViewer(it.path)
-                                    }
+                                    FileCategory.IMAGE, FileCategory.VIDEO, FileCategory.AUDIO,
+                                    FileCategory.PDF, FileCategory.TEXT, FileCategory.CODE -> onNavigateToViewer(it.path)
                                     else -> viewModel.openFile(it)
                                 }
                             },
-                            onFileLongClick = { viewModel.toggleSelection(it.path) }
+                            onFileLongClick = {
+                                if (it.category == FileCategory.IMAGE || it.category == FileCategory.VIDEO) {
+                                    previewFile = it // #23 show quick preview for images/video
+                                } else {
+                                    viewModel.toggleSelection(it.path)
+                                }
+                            }
                         )
                     }
                 }
@@ -434,6 +446,21 @@ fun FileManagerScreen(
             onCreateFolder = { name ->
                 viewModel.createNewFolder(name)
                 showCreateDialog = false
+            }
+        )
+    }
+
+    // #23 Quick preview dialog for images/videos
+    previewFile?.let { file ->
+        QuickPreviewDialog(
+            file = file,
+            onDismiss = { previewFile = null },
+            onOpen = {
+                previewFile = null
+                when (it.category) {
+                    FileCategory.ARCHIVE -> onNavigateToArchive(listOf(it.path), "extract")
+                    else -> onNavigateToViewer(it.path)
+                }
             }
         )
     }
@@ -523,8 +550,10 @@ private fun FileGridView(
     onFileClick: (FileItem) -> Unit,
     onFileLongClick: (FileItem) -> Unit
 ) {
+    // #21 Cap grid columns between 2 and 5 for all screen sizes
+    val maxColumns = 5
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(100.dp),
+        columns = GridCells.Adaptive(minSize = 100.dp),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 96.dp), // #25 FAB padding
         horizontalArrangement = Arrangement.spacedBy(8.dp),

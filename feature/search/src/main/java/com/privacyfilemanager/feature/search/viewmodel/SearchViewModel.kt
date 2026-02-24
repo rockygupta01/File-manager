@@ -35,38 +35,56 @@ class SearchViewModel @Inject constructor(
         if (_uiState.value.query.isNotBlank()) onQueryChange(_uiState.value.query)
     }
 
+    // #19 Toggle MIME type category filter (tap again to deselect)
+    fun setMimeFilter(filter: MimeFilter) {
+        val newFilter = if (_uiState.value.mimeFilter == filter) MimeFilter.ALL else filter
+        _uiState.value = _uiState.value.copy(mimeFilter = newFilter)
+        if (_uiState.value.query.isNotBlank()) onQueryChange(_uiState.value.query)
+    }
+
+    // #18 Remove a recent search suggestion
+    fun removeRecentSearch(query: String) {
+        _uiState.value = _uiState.value.copy(
+            recentSearches = _uiState.value.recentSearches - query
+        )
+    }
+
     fun onQueryChange(query: String) {
         _uiState.value = _uiState.value.copy(query = query)
-        
         searchJob?.cancel()
         if (query.isBlank()) {
             _uiState.value = _uiState.value.copy(results = emptyList(), isLoading = false, error = null)
             return
         }
-
         searchJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            delay(500) // Debounce
-            
+            delay(500)
             val rootPath = Environment.getExternalStorageDirectory().absolutePath
             val state = _uiState.value
+            val mimeType = when (state.mimeFilter) {
+                MimeFilter.IMAGES -> "image/"
+                MimeFilter.VIDEOS -> "video/"
+                MimeFilter.AUDIO  -> "audio/"
+                MimeFilter.DOCS   -> "application/"
+                MimeFilter.ALL    -> null
+            }
             when (val result = fileRepository.searchFiles(
-                query = query, 
+                query = query,
                 rootPath = rootPath,
+                mimeTypeFilter = mimeType,
                 searchContent = state.searchContent,
                 searchMetadata = state.searchMetadata
             )) {
                 is Result.Success -> {
+                    val updated = (listOf(query) + state.recentSearches).distinct().take(5)
                     _uiState.value = _uiState.value.copy(
                         results = result.data,
-                        isLoading = false
+                        isLoading = false,
+                        recentSearches = updated
                     )
                 }
                 is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = result.message
-                    )
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.message)
                 }
                 is Result.Loading -> {}
             }
@@ -74,11 +92,15 @@ class SearchViewModel @Inject constructor(
     }
 }
 
+enum class MimeFilter { ALL, IMAGES, VIDEOS, AUDIO, DOCS }
+
 data class SearchUiState(
     val query: String = "",
     val results: List<FileItem> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchContent: Boolean = false,
-    val searchMetadata: Boolean = false
+    val searchMetadata: Boolean = false,
+    val mimeFilter: MimeFilter = MimeFilter.ALL,
+    val recentSearches: List<String> = emptyList()
 )

@@ -268,5 +268,6 @@ data class FileManagerUiState(
     val sortConfig: SortConfig = SortConfig(),
     val viewMode: ViewMode = ViewMode.LIST,
     val fileToOpen: FileItem? = null,
-    val operationProgress: com.privacyfilemanager.core.domain.repository.CopyProgress? = null
+    val operationProgress: com.privacyfilemanager.core.domain.repository.CopyProgress? = null,
+    val storageInfo: com.privacyfilemanager.core.domain.repository.StorageInfo? = null // #16
 )
