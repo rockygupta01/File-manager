@@ -79,41 +79,40 @@ fun SearchScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                uiState.error != null -> {
-                    Text(
-                        text = "Error: ${uiState.error}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                uiState.results.isEmpty() && uiState.query.isNotEmpty() -> {
-                    Text(
-                        text = "No results found.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(uiState.results) { file ->
-                            ListItem(
-                                modifier = Modifier.clickable { /* no-op for now */ },
-                                headlineContent = { Text(file.name) },
-                                supportingContent = { Text(file.path) },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = if (file.isDirectory) Icons.Default.Folder else Icons.Default.Description,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            )
+                when {
+                    uiState.isLoading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    uiState.error != null -> {
+                        Text(
+                            text = "Error: ${uiState.error}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    uiState.results.isEmpty() && uiState.query.isNotEmpty() -> {
+                        Text(
+                            text = "No results found.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    else -> {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(uiState.results) { file ->
+                                ListItem(
+                                    modifier = Modifier.clickable { /* no-op for now */ },
+                                    headlineContent = { Text(file.name) },
+                                    supportingContent = { Text(file.path) },
+                                    leadingContent = {
+                                        Icon(
+                                            imageVector = if (file.isDirectory) Icons.Default.Folder else Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }

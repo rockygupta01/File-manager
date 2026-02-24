@@ -14,10 +14,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 data class DevToolsUiState(
     val activeTab: Int = 0,
@@ -52,7 +54,8 @@ class DevToolsViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isTerminalLoading = true, currentCommand = "")
             val output = withContext(Dispatchers.IO) {
                 try {
-                    val process = Runtime.getRuntime().exec(cmd)
+                    val parts = cmd.split(" ").filter { it.isNotBlank() }
+                    val process = Runtime.getRuntime().exec(parts.toTypedArray())
                     val out = process.inputStream.bufferedReader().readText()
                     val err = process.errorStream.bufferedReader().readText()
                     process.waitFor()
@@ -86,7 +89,13 @@ class DevToolsViewModel @Inject constructor(
 
                 val image = InputImage.fromBitmap(bitmap, 0)
                 val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-                val result = recognizer.process(image).await()
+
+                // Use suspendCancellableCoroutine instead of .await() to avoid play-services dep
+                val result = suspendCancellableCoroutine { cont ->
+                    recognizer.process(image)
+                        .addOnSuccessListener { text -> cont.resume(text) }
+                        .addOnFailureListener { e -> cont.resumeWithException(e) }
+                }
                 recognizer.close()
 
                 _uiState.value = _uiState.value.copy(

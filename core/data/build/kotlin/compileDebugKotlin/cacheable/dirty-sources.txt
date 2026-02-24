@@ -1,3 +1,0 @@
-/Users/rockykumar/project/File manager/core/data/src/main/java/com/privacyfilemanager/core/data/di/DataModule.kt
-/Users/rockykumar/project/File manager/core/data/src/main/java/com/privacyfilemanager/core/data/repository/LocalFileRepository.kt
-/Users/rockykumar/project/File manager/core/data/src/main/java/com/privacyfilemanager/core/data/repository/LocalStorageRepository.kt

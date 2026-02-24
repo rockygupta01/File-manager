@@ -39,6 +39,9 @@ dependencies {
     // Paging
     implementation(libs.androidx.paging.runtime)
 
+    // ExifInterface (for image metadata reading in search)
+    implementation(libs.androidx.exifinterface)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)

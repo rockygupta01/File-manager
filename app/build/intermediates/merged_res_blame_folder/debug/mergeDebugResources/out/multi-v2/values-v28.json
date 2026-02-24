@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.rocky.filemanager.app-mergeDebugResources-79:/values-v28/values-v28.xml",
+            "outputFile": "com.rocky.filemanager.app-mergeDebugResources-85:/values-v28/values-v28.xml",
             "map": [
                 {
-                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/c094f813926865956bfc0082f33e6bf8/transformed/appcompat-1.7.0/res/values-v28/values-v28.xml",
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/d765eaba4ef5656ea99e4fa35f96c065/transformed/appcompat-1.7.0/res/values-v28/values-v28.xml",
                     "from": {
                         "startLines": "2,3,4,8",
                         "startColumns": "4,4,4,4",

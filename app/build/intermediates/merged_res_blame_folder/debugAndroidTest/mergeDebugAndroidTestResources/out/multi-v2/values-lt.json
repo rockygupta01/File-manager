@@ -4,7 +4,7 @@
             "outputFile": "com.rocky.filemanager.test.app-mergeDebugAndroidTestResources-35:/values-lt/values-lt.xml",
             "map": [
                 {
-                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/312f6ccbcc9045875f10dd214557913d/transformed/core-1.15.0/res/values-lt/values-lt.xml",
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/0f5909edf76934026663338d84f95d70/transformed/core-1.15.0/res/values-lt/values-lt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/82414d3622961c93a9fda43a25814bac/transformed/ui-release/res/values-lt/values-lt.xml",
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/cf840462e39899b20c1df9cfad1be18b/transformed/ui-release/res/values-lt/values-lt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

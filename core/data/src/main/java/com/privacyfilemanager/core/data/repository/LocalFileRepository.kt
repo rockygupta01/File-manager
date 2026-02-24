@@ -1,6 +1,7 @@
 package com.privacyfilemanager.core.data.repository
 
 
+import com.privacyfilemanager.core.common.util.FileCategory
 import com.privacyfilemanager.core.common.util.FileUtils
 import com.privacyfilemanager.core.common.util.Result
 import com.privacyfilemanager.core.domain.model.FileItem
@@ -245,11 +246,11 @@ class LocalFileRepository @Inject constructor() : FileRepository {
                         if (searchMetadata) {
                             if (category == FileCategory.IMAGE) {
                                 try {
-                                    val exif = android.media.ExifInterface(file.absolutePath)
-                                    val model = exif.getAttribute(android.media.ExifInterface.TAG_MODEL) ?: ""
-                                    val make = exif.getAttribute(android.media.ExifInterface.TAG_MAKE) ?: ""
+                                    val exif = androidx.exifinterface.media.ExifInterface(file.absolutePath)
+                                    val model = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_MODEL) ?: ""
+                                    val make = exif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_MAKE) ?: ""
                                     metadataMatch = model.contains(query, ignoreCase = true) || make.contains(query, ignoreCase = true)
-                                } catch (e: Exception) {}
+                                } catch (e: Exception) { /* skip unreadable file */ }
                             } else if (category == FileCategory.AUDIO) {
                                 try {
                                     val mmr = android.media.MediaMetadataRetriever()

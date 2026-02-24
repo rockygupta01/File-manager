@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.devtools.viewmodel.DevToolsViewModel
