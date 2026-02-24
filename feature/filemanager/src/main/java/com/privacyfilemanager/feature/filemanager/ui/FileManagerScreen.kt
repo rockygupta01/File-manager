@@ -60,14 +60,20 @@ fun FileManagerScreen(
     val clipboard by viewModel.clipboard.collectAsStateWithLifecycle()
     var showCreateDialog by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
+    val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
 
-    // BUG 9 FIX: handle fileToOpen in a LaunchedEffect so it fires exactly once
-    // and is cleared immediately, preventing re-navigation on recompose
+    // fileToOpen: cleared immediately after first use
     val fileToOpen = uiState.fileToOpen
     androidx.compose.runtime.LaunchedEffect(fileToOpen) {
-        fileToOpen?.let {
-            viewModel.clearFileToOpen()
-        }
+        fileToOpen?.let { viewModel.clearFileToOpen() }
+    }
+
+    // #7: System back press navigates up in file tree, not out of app
+    androidx.activity.compose.BackHandler(enabled = !isAtRoot) {
+        viewModel.navigateUp()
     }
 
     Scaffold(
@@ -97,7 +103,7 @@ fun FileManagerScreen(
                         IconButton(onClick = { viewModel.cutSelected() }) {
                             Icon(Icons.Default.ContentCut, "Cut")
                         }
-                        IconButton(onClick = { viewModel.deleteSelected() }) {
+                        IconButton(onClick = { showDeleteConfirmDialog = true }) {
                             Icon(Icons.Default.Delete, "Delete")
                         }
                     },
@@ -110,17 +116,18 @@ fun FileManagerScreen(
                 TopAppBar(
                     title = {
                         Column {
+                            // #5 Typography hierarchy: bold title, dimmed small subtitle
                             Text(
-                                // BUG 11 FIX: show "Storage" while path is empty (initial load flicker)
                                 text = if (uiState.currentPath.isEmpty()) "Storage"
                                        else java.io.File(uiState.currentPath).name.ifEmpty { "Storage" },
-                                style = MaterialTheme.typography.titleLarge
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                             )
                             if (uiState.currentPath.isNotEmpty()) {
                                 Text(
                                     text = uiState.currentPath,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -250,16 +257,58 @@ fun FileManagerScreen(
             }
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(paddingValues)
         ) {
+            // #14 Paste destination banner
+            if (clipboard.files.isNotEmpty()) {
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (clipboard.operation == com.privacyfilemanager.core.domain.model.ClipboardOperation.CUT)
+                                Icons.Default.ContentCut else Icons.Default.ContentCopy,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        val opWord = if (clipboard.operation == com.privacyfilemanager.core.domain.model.ClipboardOperation.CUT) "cut" else "copied"
+                        val count = clipboard.files.size
+                        Text(
+                            text = "$count file${if (count > 1) "s" else ""} $opWord — navigate to destination then tap Paste",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+            // #6 Breadcrumb navigation bar
+            if (uiState.currentPath.isNotEmpty()) {
+                BreadcrumbBar(
+                    currentPath = uiState.currentPath,
+                    onSegmentClick = { viewModel.navigateTo(it) }
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+
             when {
                 uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    // #12 Shimmer skeleton instead of spinner
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        items(10) {
+                            ShimmerListItem()
+                        }
+                    }
                 }
                 uiState.error != null -> {
                     Column(
@@ -281,21 +330,28 @@ fun FileManagerScreen(
                     }
                 }
                 uiState.files.isEmpty() -> {
+                    // #2 Custom empty state
                     Column(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             Icons.Default.FolderOpen,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(64.dp)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                            modifier = Modifier.size(80.dp)
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "Empty folder",
-                            style = MaterialTheme.typography.bodyLarge,
+                            "This folder is empty",
+                            style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Tap + to create a new file or folder",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -345,10 +401,29 @@ fun FileManagerScreen(
                         .align(Alignment.BottomCenter)
                 )
             }
-        }
+            } // end Box weight(1f)
+        } // end Column
+    } // end Scaffold
+
+    // #11 Delete confirmation dialog
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("Delete ${uiState.selectedFiles.size} item${if (uiState.selectedFiles.size > 1) "s" else ""}?") },
+            text = { Text("This action cannot be undone. Selected files will be permanently deleted from your device.") },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.deleteSelected(); showDeleteConfirmDialog = false },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 
-    // Create file/folder dialog
     if (showCreateDialog) {
         CreateDialog(
             onDismiss = { showCreateDialog = false },
@@ -374,25 +449,23 @@ private fun FileListView(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 4.dp)
+        contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp) // #25 FAB bottom padding
     ) {
         items(files, key = { it.path }) { file ->
             val isSelected = file.path in selectedFiles
+            val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
 
             ListItem(
                 modifier = Modifier
                     .combinedClickable(
                         onClick = {
-                            if (selectedFiles.isNotEmpty()) {
-                                onFileLongClick(file)
-                            } else {
-                                onFileClick(file)
-                            }
+                            if (selectedFiles.isNotEmpty()) onFileLongClick(file)
+                            else onFileClick(file)
                         },
-                        onLongClick = { onFileLongClick(file) }
-                    )
-                    .then(
-                        if (isSelected) Modifier else Modifier
+                        onLongClick = {
+                            haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) // #10
+                            onFileLongClick(file)
+                        }
                     ),
                 headlineContent = {
                     Text(
@@ -406,7 +479,7 @@ private fun FileListView(
                 supportingContent = {
                     Text(
                         text = if (file.isDirectory) {
-                            "${file.childCount} items"
+                            if (file.childCount >= 0) "${file.childCount} items" else "Folder"
                         } else {
                             "${FileUtils.formatFileSize(file.size)} · ${FileUtils.formatDate(file.lastModified)}"
                         },
@@ -453,12 +526,24 @@ private fun FileGridView(
     LazyVerticalGrid(
         columns = GridCells.Adaptive(100.dp),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 96.dp), // #25 FAB padding
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(files, key = { it.path }) { file ->
             val isSelected = file.path in selectedFiles
+            val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+            // #3 Color-coded card background by category
+            val cardColor = if (isSelected)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+            else when (file.category) {
+                FileCategory.IMAGE, FileCategory.VIDEO -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+                FileCategory.AUDIO -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+                FileCategory.PDF -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
+                FileCategory.DOCUMENT, FileCategory.SPREADSHEET, FileCategory.PRESENTATION -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                FileCategory.FOLDER -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            }
 
             Card(
                 modifier = Modifier
@@ -468,13 +553,12 @@ private fun FileGridView(
                             if (selectedFiles.isNotEmpty()) onFileLongClick(file)
                             else onFileClick(file)
                         },
-                        onLongClick = { onFileLongClick(file) }
+                        onLongClick = {
+                            haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress) // #10
+                            onFileLongClick(file)
+                        }
                     ),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isSelected)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                )
+                colors = CardDefaults.cardColors(containerColor = cardColor)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -536,14 +620,16 @@ private fun FileGridView(
                             )
                         }
                     }
-                    // Filename label
-                    Text(
-                        text = file.name,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-                    )
+                    // #4 Size + date subtitle under filename
+                    if (!file.isDirectory) {
+                        Text(
+                            text = "${FileUtils.formatFileSize(file.size)}  ·  ${FileUtils.formatDate(file.lastModified)}",
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(horizontal = 8.dp).padding(bottom = 6.dp)
+                        )
+                    }
                 }
             }
         }

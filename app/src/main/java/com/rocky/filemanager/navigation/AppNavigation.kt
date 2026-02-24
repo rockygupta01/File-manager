@@ -28,7 +28,24 @@ import com.privacyfilemanager.feature.viewer.ui.ViewerScreen
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "filemanager") {
+    // #24 Slide + fade transitions for all screen navigation
+    val slideEnter = androidx.compose.animation.slideInHorizontally(initialOffsetX = { it }) +
+            androidx.compose.animation.fadeIn(initialAlpha = 0.3f)
+    val slideExit = androidx.compose.animation.slideOutHorizontally(targetOffsetX = { -it / 3 }) +
+            androidx.compose.animation.fadeOut()
+    val popEnter = androidx.compose.animation.slideInHorizontally(initialOffsetX = { -it / 3 }) +
+            androidx.compose.animation.fadeIn(initialAlpha = 0.3f)
+    val popExit = androidx.compose.animation.slideOutHorizontally(targetOffsetX = { it }) +
+            androidx.compose.animation.fadeOut()
+
+    NavHost(
+        navController = navController,
+        startDestination = "filemanager",
+        enterTransition = { slideEnter },
+        exitTransition = { slideExit },
+        popEnterTransition = { popEnter },
+        popExitTransition = { popExit }
+    ) {
         composable("filemanager") {
             FileManagerScreen(
                 onNavigateToStorage = { navController.navigate("storage") },
