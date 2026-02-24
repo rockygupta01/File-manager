@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.privacyfilemanager.feature.security-release-68:/drawable-anydpi-v24/fingerprint_dialog_error.xml",
+        "source": "com.privacyfilemanager.feature.security-biometric-1.2.0-alpha05-50:/drawable-anydpi-v24/fingerprint_dialog_error.xml"
+    }
+]

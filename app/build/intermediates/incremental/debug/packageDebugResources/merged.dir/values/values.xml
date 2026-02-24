@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_bg">#0F1419</color>
-    <string name="app_name">File Manager</string>
+    <color name="ic_launcher_background">#1A1A2E</color>
+    <color name="splash_bg">#1A1A2E</color>
+    <string name="app_name">PrivaFiles – File Manager</string>
+    <string name="manage_storage_rationale">PrivaFiles needs full storage access to manage files and folders on your device. All operations are local — no data is sent anywhere.</string>
+    <string name="privacy_policy_url">https://github.com/rockygupta01/File-manager/blob/main/PRIVACY_POLICY.md</string>
     <style name="Theme.FileManager" parent="android:Theme.Material.Light.NoActionBar"/>
     <style name="Theme.FileManager.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_bg</item>

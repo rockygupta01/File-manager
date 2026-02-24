@@ -1,0 +1,2 @@
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.lan.viewmodel.LanViewModel
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.lan.viewmodel.LanViewModel

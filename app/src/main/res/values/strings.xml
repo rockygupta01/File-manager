@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">File Manager</string>
+    <string name="app_name">PrivaFiles – File Manager</string>
+    <string name="privacy_policy_url">https://github.com/rockygupta01/File-manager/blob/main/PRIVACY_POLICY.md</string>
+    <string name="manage_storage_rationale">PrivaFiles needs full storage access to manage files and folders on your device. All operations are local — no data is sent anywhere.</string>
 </resources>

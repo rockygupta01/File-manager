@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "com.privacyfilemanager.core.database-release-31:/layout/custom_dialog.xml",
+        "source": "com.privacyfilemanager.core.database-core-1.15.0-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.privacyfilemanager.core.database-release-31:/layout/ime_base_split_test_activity.xml",
+        "source": "com.privacyfilemanager.core.database-core-1.15.0-1:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.privacyfilemanager.core.database-release-31:/layout/notification_template_part_chronometer.xml",
+        "source": "com.privacyfilemanager.core.database-core-1.15.0-1:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.privacyfilemanager.core.database-release-31:/layout/notification_template_part_time.xml",
+        "source": "com.privacyfilemanager.core.database-core-1.15.0-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.privacyfilemanager.core.database-release-31:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.privacyfilemanager.core.database-core-1.15.0-1:/layout/ime_secondary_split_test_activity.xml"
+    }
+]

@@ -1,0 +1,2 @@
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.archive.viewmodel.ArchiveViewModel
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.archive.viewmodel.ArchiveViewModel

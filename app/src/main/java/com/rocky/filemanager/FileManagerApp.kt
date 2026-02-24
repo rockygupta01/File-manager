@@ -1,14 +1,25 @@
 package com.rocky.filemanager
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Date
+import javax.inject.Inject
 
 @HiltAndroidApp
-class FileManagerApp : Application() {
+class FileManagerApp : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()

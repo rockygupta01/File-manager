@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.privacyfilemanager.core.security-mergeReleaseResources-21:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/b1356581f56d6174ec355940e0f79d98/transformed/appcompat-1.2.0/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.privacyfilemanager.core.security-release-23:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/b1356581f56d6174ec355940e0f79d98/transformed/appcompat-1.2.0/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

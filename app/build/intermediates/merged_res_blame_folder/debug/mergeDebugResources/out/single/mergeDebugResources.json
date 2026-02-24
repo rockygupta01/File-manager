@@ -1,6 +1,74 @@
 [
     {
-        "merged": "com.rocky.filemanager.app-debug-87:/xml_data_extraction_rules.xml.flat",
-        "source": "com.rocky.filemanager.app-main-89:/xml/data_extraction_rules.xml"
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/Users/rockykumar/.gradle/daemon/8.10.2/com.rocky.filemanager.app-debug-87:/xml_data_extraction_rules.xml.flat",
+        "source": "/Users/rockykumar/.gradle/daemon/8.10.2/com.rocky.filemanager.app-main-89:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.rocky.filemanager.app-debug-87:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.rocky.filemanager.app-main-89:/mipmap-xxxhdpi/ic_launcher_foreground.png"
     }
 ]

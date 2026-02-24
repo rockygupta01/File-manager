@@ -1,0 +1,2 @@
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.search.viewmodel.SearchViewModel
+-keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.search.viewmodel.SearchViewModel

@@ -1,9 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+}
+
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
 }
 
 android {
@@ -24,10 +31,27 @@ android {
         }
     }
 
+    signingConfigs {
+        val storeFilePath = localProperties.getProperty("STORE_FILE", "")
+        val keystoreExists = storeFilePath.isNotEmpty() && file(storeFilePath).exists()
+        if (keystoreExists) {
+            create("release") {
+                storeFile = file(storeFilePath)
+                storePassword = localProperties.getProperty("STORE_PASSWORD", "")
+                keyAlias = localProperties.getProperty("KEY_ALIAS", "")
+                keyPassword = localProperties.getProperty("KEY_PASSWORD", "")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            val storeFilePath = localProperties.getProperty("STORE_FILE", "")
+            if (storeFilePath.isNotEmpty() && file(storeFilePath).exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -105,6 +129,11 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // WorkManager + Hilt Workers (needed for Hilt-injected workers in :feature:automation)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.hilt.android.compiler)
 
     // Image Loading
     implementation(libs.coil.compose)

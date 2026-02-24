@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.privacyfilemanager.core.ui-release-46:/drawable-v21/notification_action_background.xml",
+        "source": "com.privacyfilemanager.core.ui-core-1.15.0-2:/drawable-v21/notification_action_background.xml"
+    }
+]
