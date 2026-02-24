@@ -111,9 +111,7 @@ fun FileManagerScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = onNavigateToAppManager) {
-                            Icon(Icons.Default.Android, "App Manager")
-                        }
+
                         IconButton(onClick = onNavigateToStorage) {
                             Icon(Icons.Default.PieChart, "Storage Analyzer")
                         }
@@ -146,6 +144,11 @@ fun FileManagerScreen(
                                 Icon(Icons.Default.MoreVert, "More")
                             }
                             DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                                DropdownMenuItem(
+                                    text = { Text("App Manager") },
+                                    leadingIcon = { Icon(Icons.Default.Android, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToAppManager() }
+                                )
                                 DropdownMenuItem(
                                     text = { Text("Automation") },
                                     leadingIcon = { Icon(Icons.Default.Schedule, null) },
