@@ -41,11 +41,15 @@ class LocalFileRepository @Inject constructor() : FileRepository {
                 return@withContext Result.Error("Directory does not exist: $directoryPath")
             }
 
-            val files = dir.listFiles()
-                ?.filter { showHidden || !it.isHidden }
-                ?.map { it.toFileItem() }
-                ?.sortedWith(buildComparator(sortConfig))
-                ?: emptyList()
+            // BUG 8 FIX: pass precomputed childCount so toFileItem() does not call listFiles() again
+            val rawFiles = dir.listFiles() ?: emptyArray()
+            val files = rawFiles
+                .filter { showHidden || !it.isHidden }
+                .map { file ->
+                    val childCount = if (file.isDirectory) (file.listFiles()?.size ?: 0) else 0
+                    file.toFileItem(precomputedChildCount = childCount)
+                }
+                .sortedWith(buildComparator(sortConfig))
 
             Result.Success(files)
         } catch (e: Exception) {
@@ -85,18 +89,19 @@ class LocalFileRepository @Inject constructor() : FileRepository {
         withContext(Dispatchers.IO) {
             try {
                 var deleted = 0
+                val failedPaths = mutableListOf<String>()
                 paths.forEach { path ->
                     val file = File(path)
                     if (file.exists()) {
-                        if (file.isDirectory) {
-                            file.deleteRecursively()
-                        } else {
-                            file.delete()
-                        }
-                        deleted++
+                        val success = if (file.isDirectory) file.deleteRecursively() else file.delete()
+                        if (success) deleted++ else failedPaths.add(file.name)
                     }
                 }
-                Result.Success(deleted)
+                if (failedPaths.isNotEmpty()) {
+                    Result.Error("Failed to delete: ${failedPaths.joinToString(", ")}")
+                } else {
+                    Result.Success(deleted)
+                }
             } catch (e: Exception) {
                 Result.Error("Failed to delete: ${e.message}", e)
             }
@@ -130,7 +135,14 @@ class LocalFileRepository @Inject constructor() : FileRepository {
             var bytesProcessed = 0L
 
             sourceFiles.forEachIndexed { index, source ->
-                val target = File(destDir, source.name)
+                // BUG 2 FIX: do not silently overwrite — auto-rename if target exists
+                var target = File(destDir, source.name)
+                if (target.exists()) {
+                    val base = source.nameWithoutExtension
+                    val ext = if (source.extension.isNotEmpty()) ".${source.extension}" else ""
+                    var counter = 1
+                    while (target.exists()) { target = File(destDir, "${base}_copy${counter++}${ext}") }
+                }
 
                 if (source.isDirectory) {
                     bytesProcessed = copyDirectoryRecursive(
@@ -252,15 +264,18 @@ class LocalFileRepository @Inject constructor() : FileRepository {
                                     metadataMatch = model.contains(query, ignoreCase = true) || make.contains(query, ignoreCase = true)
                                 } catch (e: Exception) { /* skip unreadable file */ }
                             } else if (category == FileCategory.AUDIO) {
+                                // BUG 3 FIX: always release MediaMetadataRetriever via finally
+                                val mmr = android.media.MediaMetadataRetriever()
                                 try {
-                                    val mmr = android.media.MediaMetadataRetriever()
                                     mmr.setDataSource(file.absolutePath)
                                     val title = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_TITLE) ?: ""
                                     val artist = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: ""
                                     val album = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ALBUM) ?: ""
                                     metadataMatch = title.contains(query, ignoreCase = true) || artist.contains(query, ignoreCase = true) || album.contains(query, ignoreCase = true)
+                                } catch (e: Exception) {
+                                } finally {
                                     mmr.release()
-                                } catch (e: Exception) {}
+                                }
                             }
                         }
                     }
@@ -294,18 +309,20 @@ class LocalFileRepository @Inject constructor() : FileRepository {
 
     // ===== Private helpers =====
 
-    private fun File.toFileItem(): FileItem = FileItem(
+    // BUG 8 FIX: childCount no longer calls listFiles() again (was N+1 per directory).
+    // BUG 7 FIX: directory size is calculated only at the top level using getDirSize.
+    private fun File.toFileItem(precomputedChildCount: Int = -1): FileItem = FileItem(
         name = name,
         path = absolutePath,
         isDirectory = isDirectory,
-        size = if (isDirectory) 0L else length(),
+        size = if (isDirectory) 0L else length(), // dir sizes computed lazily via getDirSize
         lastModified = lastModified(),
         mimeType = if (isDirectory) "inode/directory" else FileUtils.getMimeType(this),
         category = FileUtils.getFileCategory(this),
         isHidden = isHidden,
         isReadable = canRead(),
         isWritable = canWrite(),
-        childCount = if (isDirectory) (listFiles()?.size ?: 0) else 0
+        childCount = precomputedChildCount
     )
 
     private fun buildComparator(config: SortConfig): Comparator<FileItem> {

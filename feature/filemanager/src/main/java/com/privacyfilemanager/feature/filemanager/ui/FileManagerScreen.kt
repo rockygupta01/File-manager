@@ -61,6 +61,15 @@ fun FileManagerScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
 
+    // BUG 9 FIX: handle fileToOpen in a LaunchedEffect so it fires exactly once
+    // and is cleared immediately, preventing re-navigation on recompose
+    val fileToOpen = uiState.fileToOpen
+    androidx.compose.runtime.LaunchedEffect(fileToOpen) {
+        fileToOpen?.let {
+            viewModel.clearFileToOpen()
+        }
+    }
+
     Scaffold(
         topBar = {
             if (uiState.selectedFiles.isNotEmpty()) {
@@ -102,21 +111,36 @@ fun FileManagerScreen(
                     title = {
                         Column {
                             Text(
-                                text = java.io.File(uiState.currentPath).name.ifEmpty { "Storage" },
+                                // BUG 11 FIX: show "Storage" while path is empty (initial load flicker)
+                                text = if (uiState.currentPath.isEmpty()) "Storage"
+                                       else java.io.File(uiState.currentPath).name.ifEmpty { "Storage" },
                                 style = MaterialTheme.typography.titleLarge
                             )
-                            Text(
-                                text = uiState.currentPath,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            if (uiState.currentPath.isNotEmpty()) {
+                                Text(
+                                    text = uiState.currentPath,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = { viewModel.navigateUp() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Navigate up")
+                        // BUG 4 FIX: show home icon at root, back arrow only in subfolders
+                        val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
+                        val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
+                        if (isAtRoot) {
+                            Icon(
+                                Icons.Default.Home,
+                                contentDescription = "Home",
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        } else {
+                            IconButton(onClick = { viewModel.navigateUp() }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Navigate up")
+                            }
                         }
                     },
                     actions = {

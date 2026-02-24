@@ -149,6 +149,8 @@ class FileManagerViewModel @Inject constructor(
                     fileRepository.copy(clip.files, destination).collect { progress ->
                         _uiState.update { it.copy(operationProgress = progress) }
                         if (progress.isComplete) {
+                            // BUG 5 FIX: clear clipboard after COPY too, not just CUT
+                            _clipboard.value = FileClipboard()
                             refreshCurrentDirectory()
                             _uiState.update { it.copy(operationProgress = null) }
                         }
@@ -220,8 +222,22 @@ class FileManagerViewModel @Inject constructor(
     // ===== Settings =====
 
     fun toggleHiddenFiles() {
-        _uiState.update { it.copy(showHidden = !it.showHidden) }
-        refreshCurrentDirectory()
+        // BUG 6 FIX: capture new value first to avoid race condition between update and refresh
+        val newShowHidden = !_uiState.value.showHidden
+        _uiState.update { it.copy(showHidden = newShowHidden) }
+        viewModelScope.launch {
+            when (val result = fileRepository.listFiles(
+                directoryPath = _uiState.value.currentPath,
+                showHidden = newShowHidden,
+                sortConfig = _uiState.value.sortConfig
+            )) {
+                is com.privacyfilemanager.core.common.util.Result.Success ->
+                    _uiState.update { it.copy(files = result.data, isLoading = false, error = null) }
+                is com.privacyfilemanager.core.common.util.Result.Error ->
+                    _uiState.update { it.copy(isLoading = false, error = result.message) }
+                else -> {}
+            }
+        }
     }
 
     fun setSortConfig(sortConfig: SortConfig) {

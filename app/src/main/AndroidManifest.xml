@@ -18,6 +18,8 @@
     <!-- LAN Transfer - WiFi state detection only (no internet access) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- BUG 12 FIX: required by NanoHTTPD to bind socket on some OEM devices -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!-- Background Services (WorkManager Automation) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
