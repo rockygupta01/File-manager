@@ -45,6 +45,8 @@ import com.privacyfilemanager.feature.filemanager.viewmodel.FileManagerViewModel
 @Composable
 fun FileManagerScreen(
     viewModel: FileManagerViewModel = hiltViewModel(),
+    isDarkTheme: Boolean = false,
+    onToggleTheme: (Boolean) -> Unit = {},
     onNavigateToStorage: () -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
@@ -174,6 +176,34 @@ fun FileManagerScreen(
                                 expanded = showMoreMenu,
                                 onDismissRequest = { showMoreMenu = false }
                             ) {
+                                // ── Settings section ──────────────────────────────
+                                DropdownMenuItem(
+                                    text = { Text("Settings", style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    leadingIcon = { Icon(Icons.Default.Settings, null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    enabled = false, // section header — not clickable
+                                    onClick = {}
+                                )
+                                // Theme toggle row (inline, no navigation needed)
+                                DropdownMenuItem(
+                                    text = { Text(if (isDarkTheme) "Dark Theme" else "Light Theme") },
+                                    leadingIcon = {
+                                        Icon(
+                                            if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+                                            contentDescription = "Theme"
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Switch(
+                                            checked = isDarkTheme,
+                                            onCheckedChange = { onToggleTheme(it) },
+                                            modifier = androidx.compose.ui.Modifier.height(24.dp)
+                                        )
+                                    },
+                                    onClick = { onToggleTheme(!isDarkTheme) }
+                                )
+                                HorizontalDivider()
                                 // Quick toggles
                                 DropdownMenuItem(
                                     text = { Text(if (uiState.showHidden) "Hide Hidden Files" else "Show Hidden Files") },

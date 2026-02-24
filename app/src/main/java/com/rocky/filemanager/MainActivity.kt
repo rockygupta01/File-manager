@@ -57,9 +57,14 @@ class MainActivity : ComponentActivity() {
         hasStoragePermission = checkStoragePermission()
 
         setContent {
-            // #22: Dark/Light theme — null = follow system
+            // #22: Dark/Light theme — persisted to SharedPrefs
             val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
-            PrivacyFileManagerTheme(darkTheme = isDarkTheme ?: systemDark) {
+            // Read persisted choice (null = not set = follow system)
+            val savedDark = prefs.getBoolean("is_dark_theme", systemDark)
+            if (isDarkTheme == null) isDarkTheme = savedDark
+            val effectiveDark = isDarkTheme ?: systemDark
+
+            PrivacyFileManagerTheme(darkTheme = effectiveDark) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -74,7 +79,13 @@ class MainActivity : ComponentActivity() {
                         !hasStoragePermission -> PermissionScreen(
                             onRequestPermission = { requestStoragePermission() }
                         )
-                        else -> AppNavigation()
+                        else -> AppNavigation(
+                            isDarkTheme = effectiveDark,
+                            onToggleTheme = { dark ->
+                                isDarkTheme = dark
+                                prefs.edit().putBoolean("is_dark_theme", dark).apply()
+                            }
+                        )
                     }
                 }
             }

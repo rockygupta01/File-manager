@@ -25,7 +25,10 @@ import com.privacyfilemanager.feature.storage.ui.StorageAnalyzerScreen
 import com.privacyfilemanager.feature.viewer.ui.ViewerScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    isDarkTheme: Boolean = false,
+    onToggleTheme: (Boolean) -> Unit = {}
+) {
     val navController = rememberNavController()
 
     // #24 Slide + fade transitions for all screen navigation
@@ -48,6 +51,8 @@ fun AppNavigation() {
     ) {
         composable("filemanager") {
             FileManagerScreen(
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme,
                 onNavigateToStorage = { navController.navigate("storage") },
                 onNavigateToSearch = { navController.navigate("search") },
                 onNavigateToSettings = { navController.navigate("security") },
@@ -70,7 +75,11 @@ fun AppNavigation() {
             StorageAnalyzerScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable("security") {
-            SecurityVaultScreen(onNavigateBack = { navController.popBackStack() })
+            SecurityVaultScreen(
+                onNavigateBack = { navController.popBackStack() },
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme
+            )
         }
         composable("search") {
             SearchScreen(onNavigateBack = { navController.popBackStack() })

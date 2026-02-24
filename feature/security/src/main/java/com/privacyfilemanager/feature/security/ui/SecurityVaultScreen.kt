@@ -3,6 +3,7 @@ package com.privacyfilemanager.feature.security.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,8 @@ import com.privacyfilemanager.feature.security.viewmodel.SecurityVaultViewModel
 @Composable
 fun SecurityVaultScreen(
     onNavigateBack: () -> Unit,
+    isDarkTheme: Boolean = false,
+    onToggleTheme: (Boolean) -> Unit = {},
     viewModel: SecurityVaultViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +78,32 @@ fun SecurityVaultScreen(
                 }
             )
             
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Appearance",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ListItem(
+                headlineContent = { Text("Dark Theme") },
+                supportingContent = { Text("Switch between light and dark mode") },
+                leadingContent = {
+                    Icon(
+                        imageVector = if (isDarkTheme) Icons.Default.DarkMode
+                        else Icons.Default.LightMode,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    Switch(
+                        checked = isDarkTheme,
+                        onCheckedChange = { onToggleTheme(it) }
+                    )
+                }
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
             Text(
                 text = "Secure Vault",
