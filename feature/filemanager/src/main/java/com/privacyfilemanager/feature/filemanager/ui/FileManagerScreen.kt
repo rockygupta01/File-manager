@@ -111,43 +111,62 @@ fun FileManagerScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = onNavigateToStorage) {
-                            Icon(Icons.Default.PieChart, "Storage Analyzer")
-                        }
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(Icons.Default.Security, "Security & Vault")
-                        }
+                        // ── Core actions (always visible, equal spacing) ──
                         IconButton(onClick = onNavigateToSearch) {
-                            Icon(Icons.Default.Search, "Search")
+                            Icon(Icons.Default.Search, contentDescription = "Search")
                         }
                         IconButton(onClick = { viewModel.toggleViewMode() }) {
                             Icon(
-                                if (uiState.viewMode == ViewMode.LIST) Icons.Default.GridView
-                                else Icons.Default.ViewList,
-                                "Toggle view"
+                                imageVector = if (uiState.viewMode == ViewMode.LIST)
+                                    Icons.Default.GridView else Icons.Default.ViewList,
+                                contentDescription = "Toggle view"
                             )
                         }
                         IconButton(onClick = { showSortMenu = !showSortMenu }) {
-                            Icon(Icons.Default.SortByAlpha, "Sort")
+                            Icon(Icons.Default.SortByAlpha, contentDescription = "Sort")
                         }
-                        IconButton(onClick = { viewModel.toggleHiddenFiles() }) {
-                            Icon(
-                                if (uiState.showHidden) Icons.Default.VisibilityOff
-                                else Icons.Default.Visibility,
-                                "Toggle hidden"
-                            )
-                        }
+
+                        // ── Overflow menu ──
                         var showMoreMenu by remember { mutableStateOf(false) }
                         Box {
                             IconButton(onClick = { showMoreMenu = true }) {
-                                Icon(Icons.Default.MoreVert, "More")
+                                Icon(Icons.Default.MoreVert, contentDescription = "More options")
                             }
-                            DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                            DropdownMenu(
+                                expanded = showMoreMenu,
+                                onDismissRequest = { showMoreMenu = false }
+                            ) {
+                                // Quick toggles
+                                DropdownMenuItem(
+                                    text = { Text(if (uiState.showHidden) "Hide Hidden Files" else "Show Hidden Files") },
+                                    leadingIcon = {
+                                        Icon(
+                                            if (uiState.showHidden) Icons.Default.VisibilityOff
+                                            else Icons.Default.Visibility,
+                                            null
+                                        )
+                                    },
+                                    onClick = { showMoreMenu = false; viewModel.toggleHiddenFiles() }
+                                )
+                                HorizontalDivider()
+                                // Navigation items
+                                DropdownMenuItem(
+                                    text = { Text("Storage Analyzer") },
+                                    leadingIcon = { Icon(Icons.Default.PieChart, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToStorage() }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Security & Vault") },
+                                    leadingIcon = { Icon(Icons.Default.Security, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToSettings() }
+                                )
                                 DropdownMenuItem(
                                     text = { Text("App Manager") },
                                     leadingIcon = { Icon(Icons.Default.Android, null) },
                                     onClick = { showMoreMenu = false; onNavigateToAppManager() }
                                 )
+                                HorizontalDivider()
+                                // Advanced tools
                                 DropdownMenuItem(
                                     text = { Text("Automation") },
                                     leadingIcon = { Icon(Icons.Default.Schedule, null) },
