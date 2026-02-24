@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.video)   // video frame thumbnails in grid view
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

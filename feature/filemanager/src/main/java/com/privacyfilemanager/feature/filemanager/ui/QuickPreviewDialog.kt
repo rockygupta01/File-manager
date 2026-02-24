@@ -1,6 +1,4 @@
 package com.privacyfilemanager.feature.filemanager.ui
-
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -58,11 +56,11 @@ fun QuickPreviewDialog(
                         detectTapGestures { /* absorb — don't dismiss */ }
                     }
             ) {
-                if (file.category == FileCategory.IMAGE) {
+                if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
                     val context = LocalContext.current
                     SubcomposeAsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(Uri.fromFile(File(file.path)))
+                            .data(File(file.path))  // ✅ File() — scoped storage safe
                             .build(),
                         contentDescription = file.name,
                         contentScale = ContentScale.Fit,

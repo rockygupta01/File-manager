@@ -593,14 +593,19 @@ private fun FileGridView(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Show real thumbnail for images and videos
-                    if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
+                    // Show real thumbnail for images, videos, and PDFs
+                    if (file.category == FileCategory.IMAGE ||
+                        file.category == FileCategory.VIDEO ||
+                        file.category == FileCategory.PDF) {
                         val context = LocalContext.current
+                        val imageRequest = remember(file.path) {
+                            ImageRequest.Builder(context)
+                                .data(java.io.File(file.path))  // ✅ File() — scoped storage safe
+                                .size(200, 200)
+                                .build()
+                        }
                         SubcomposeAsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(Uri.fromFile(File(file.path)))
-                                .size(Size(200, 200))
-                                .build(),
+                            model = imageRequest,
                             contentDescription = file.name,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -616,11 +621,18 @@ private fun FileGridView(
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
+                                is coil3.compose.AsyncImagePainter.State.Loading -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(modifier = Modifier.size(24.dp),
+                                            strokeWidth = 2.dp)
+                                    }
+                                }
                                 else -> {
                                     Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
