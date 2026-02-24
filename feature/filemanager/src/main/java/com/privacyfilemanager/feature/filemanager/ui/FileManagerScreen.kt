@@ -1,6 +1,10 @@
 package com.privacyfilemanager.feature.filemanager.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.SubcomposeAsyncImage
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -444,23 +448,68 @@ private fun FileGridView(
                 )
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = getFileIcon(file.category),
-                        contentDescription = null,
-                        tint = getIconTint(file.category),
-                        modifier = Modifier.size(40.dp)
-                    )
-                    Spacer(Modifier.height(8.dp))
+                    // Show real thumbnail for images and videos
+                    if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
+                        SubcomposeAsyncImage(
+                            model = file.path,
+                            contentDescription = file.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .clip(MaterialTheme.shapes.medium)
+                        ) {
+                            when (painter.state) {
+                                is coil3.compose.AsyncImagePainter.State.Success -> {
+                                    androidx.compose.foundation.Image(
+                                        painter = painter,
+                                        contentDescription = file.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                                else -> {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = getFileIcon(file.category),
+                                            contentDescription = null,
+                                            tint = getIconTint(file.category),
+                                            modifier = Modifier.size(40.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .padding(12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = getFileIcon(file.category),
+                                contentDescription = null,
+                                tint = getIconTint(file.category),
+                                modifier = Modifier.size(44.dp)
+                            )
+                        }
+                    }
+                    // Filename label
                     Text(
                         text = file.name,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
                     )
                 }
             }
