@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml:2:13-83
-INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml:2:13-83
+ADDED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml:2:13-83
+INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml:2:13-83
 	package
-		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml
+		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml
 	xmlns:android
-		ADDED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml:2:23-81
+		ADDED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml:2:23-81
 uses-sdk
-INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml reason: use-sdk injection requested
-INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml
-INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml
+INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml reason: use-sdk injection requested
+INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml
+INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml
 	android:targetSdkVersion
-		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml
+		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml
 	android:minSdkVersion
-		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest409466286624662541.xml
+		INJECTED from /Users/rockykumar/project/File manager/core/common/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest8498075516007577038.xml

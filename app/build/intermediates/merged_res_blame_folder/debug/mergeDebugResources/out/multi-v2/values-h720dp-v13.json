@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.rocky.filemanager.app-mergeDebugResources-76:/values-h720dp-v13/values-h720dp-v13.xml",
+            "outputFile": "com.rocky.filemanager.app-mergeDebugResources-79:/values-h720dp-v13/values-h720dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/7c7192136ac0fcfa9c76f32f550f1088/transformed/appcompat-1.7.0/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/c094f813926865956bfc0082f33e6bf8/transformed/appcompat-1.7.0/res/values-h720dp-v13/values-h720dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

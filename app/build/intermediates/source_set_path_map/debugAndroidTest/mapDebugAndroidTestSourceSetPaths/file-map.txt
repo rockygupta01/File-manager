@@ -1,0 +1,38 @@
+com.rocky.filemanager.test.app-lifecycle-viewmodel-ktx-2.8.7-0 /Users/rockykumar/.gradle/caches/8.10.2/transforms/08fc6b182364ea21140d6c5345031529/transformed/lifecycle-viewmodel-ktx-2.8.7/res
+com.rocky.filemanager.test.app-lifecycle-runtime-ktx-release-1 /Users/rockykumar/.gradle/caches/8.10.2/transforms/11463a5e9c501c6b187b6aac02621776/transformed/lifecycle-runtime-ktx-release/res
+com.rocky.filemanager.test.app-runtime-release-2 /Users/rockykumar/.gradle/caches/8.10.2/transforms/1173d99210f4260e502f5172d4b104ce/transformed/runtime-release/res
+com.rocky.filemanager.test.app-lifecycle-viewmodel-release-3 /Users/rockykumar/.gradle/caches/8.10.2/transforms/12d65bc0f06c43131f99ffd075b335d3/transformed/lifecycle-viewmodel-release/res
+com.rocky.filemanager.test.app-startup-runtime-1.1.1-4 /Users/rockykumar/.gradle/caches/8.10.2/transforms/23ae8244c668e83bf2373957b2399da0/transformed/startup-runtime-1.1.1/res
+com.rocky.filemanager.test.app-core-1.15.0-5 /Users/rockykumar/.gradle/caches/8.10.2/transforms/312f6ccbcc9045875f10dd214557913d/transformed/core-1.15.0/res
+com.rocky.filemanager.test.app-activity-compose-1.9.3-6 /Users/rockykumar/.gradle/caches/8.10.2/transforms/3647631c407d4f0f448e6b65ac8e9b6f/transformed/activity-compose-1.9.3/res
+com.rocky.filemanager.test.app-ui-geometry-release-7 /Users/rockykumar/.gradle/caches/8.10.2/transforms/3ae600e9a238e1c65967b60c1b5a7abe/transformed/ui-geometry-release/res
+com.rocky.filemanager.test.app-activity-1.9.3-8 /Users/rockykumar/.gradle/caches/8.10.2/transforms/4309fba4248510b0e41937bf2d9d8516/transformed/activity-1.9.3/res
+com.rocky.filemanager.test.app-ui-unit-release-9 /Users/rockykumar/.gradle/caches/8.10.2/transforms/488c710422f4757b7fee729a805dea18/transformed/ui-unit-release/res
+com.rocky.filemanager.test.app-ui-graphics-release-10 /Users/rockykumar/.gradle/caches/8.10.2/transforms/56f901743cc06790c89daf82ad2c639f/transformed/ui-graphics-release/res
+com.rocky.filemanager.test.app-emoji2-1.3.0-11 /Users/rockykumar/.gradle/caches/8.10.2/transforms/611f17d6a9963e8d24aef1ac61f96517/transformed/emoji2-1.3.0/res
+com.rocky.filemanager.test.app-core-ktx-1.15.0-12 /Users/rockykumar/.gradle/caches/8.10.2/transforms/66cc670cf4783e345fa9c166da1c34ee/transformed/core-ktx-1.15.0/res
+com.rocky.filemanager.test.app-ui-text-release-13 /Users/rockykumar/.gradle/caches/8.10.2/transforms/6e30c54417fd38b814e1a60497d22e5f/transformed/ui-text-release/res
+com.rocky.filemanager.test.app-core-1.6.1-14 /Users/rockykumar/.gradle/caches/8.10.2/transforms/79db3b73ec697f76cd3a3239092d839d/transformed/core-1.6.1/res
+com.rocky.filemanager.test.app-lifecycle-livedata-core-2.8.7-15 /Users/rockykumar/.gradle/caches/8.10.2/transforms/7c7a8f9a487d0280eb52a0742192f547/transformed/lifecycle-livedata-core-2.8.7/res
+com.rocky.filemanager.test.app-ui-release-16 /Users/rockykumar/.gradle/caches/8.10.2/transforms/82414d3622961c93a9fda43a25814bac/transformed/ui-release/res
+com.rocky.filemanager.test.app-lifecycle-runtime-compose-release-17 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9356db05598a9ea38ed69aba118d8353/transformed/lifecycle-runtime-compose-release/res
+com.rocky.filemanager.test.app-core-runtime-2.2.0-18 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9794f8e37ba59fd858696a6e2c831bc4/transformed/core-runtime-2.2.0/res
+com.rocky.filemanager.test.app-runtime-saveable-release-19 /Users/rockykumar/.gradle/caches/8.10.2/transforms/a8002afc6e29a086c0dab37f94c0cad6/transformed/runtime-saveable-release/res
+com.rocky.filemanager.test.app-tracing-1.2.0-20 /Users/rockykumar/.gradle/caches/8.10.2/transforms/b6c3ad0231f59c55174ed595e35cf8d0/transformed/tracing-1.2.0/res
+com.rocky.filemanager.test.app-lifecycle-process-2.8.7-21 /Users/rockykumar/.gradle/caches/8.10.2/transforms/bbb53d0e7608ae27e5a17a07245b0585/transformed/lifecycle-process-2.8.7/res
+com.rocky.filemanager.test.app-savedstate-1.2.1-22 /Users/rockykumar/.gradle/caches/8.10.2/transforms/bf3bdf35b8cdcbaac78d6a16fdd26486/transformed/savedstate-1.2.1/res
+com.rocky.filemanager.test.app-lifecycle-viewmodel-savedstate-2.8.7-23 /Users/rockykumar/.gradle/caches/8.10.2/transforms/c44ae94dd344fca81a368e385b21a7a6/transformed/lifecycle-viewmodel-savedstate-2.8.7/res
+com.rocky.filemanager.test.app-ui-test-release-24 /Users/rockykumar/.gradle/caches/8.10.2/transforms/c46dac990f7852d8a18c561adf16810d/transformed/ui-test-release/res
+com.rocky.filemanager.test.app-savedstate-ktx-1.2.1-25 /Users/rockykumar/.gradle/caches/8.10.2/transforms/cba41ad2ed3e6492ed4e590a0a80e18b/transformed/savedstate-ktx-1.2.1/res
+com.rocky.filemanager.test.app-annotation-experimental-1.4.1-26 /Users/rockykumar/.gradle/caches/8.10.2/transforms/cbbf492230fe367b12139390793a77ad/transformed/annotation-experimental-1.4.1/res
+com.rocky.filemanager.test.app-graphics-path-1.0.1-27 /Users/rockykumar/.gradle/caches/8.10.2/transforms/d5636e88a235baeb0028bbadc1ba6da5/transformed/graphics-path-1.0.1/res
+com.rocky.filemanager.test.app-activity-ktx-1.9.3-28 /Users/rockykumar/.gradle/caches/8.10.2/transforms/df8db4b6ea4f70bd91e45ed2daf021a1/transformed/activity-ktx-1.9.3/res
+com.rocky.filemanager.test.app-ui-test-junit4-release-29 /Users/rockykumar/.gradle/caches/8.10.2/transforms/e1fdf173d97baf8f47342e6865c0184d/transformed/ui-test-junit4-release/res
+com.rocky.filemanager.test.app-profileinstaller-1.4.1-30 /Users/rockykumar/.gradle/caches/8.10.2/transforms/e2e898d015b12af05db0e68b1126e000/transformed/profileinstaller-1.4.1/res
+com.rocky.filemanager.test.app-customview-poolingcontainer-1.0.0-31 /Users/rockykumar/.gradle/caches/8.10.2/transforms/ec4639ce18c4033f91fbf435ca72973a/transformed/customview-poolingcontainer-1.0.0/res
+com.rocky.filemanager.test.app-ui-util-release-32 /Users/rockykumar/.gradle/caches/8.10.2/transforms/f91dd2d589a2a0c7a7e9686e865534db/transformed/ui-util-release/res
+com.rocky.filemanager.test.app-lifecycle-runtime-release-33 /Users/rockykumar/.gradle/caches/8.10.2/transforms/fca4b2b0666aec40c7576ccb45ecef7a/transformed/lifecycle-runtime-release/res
+com.rocky.filemanager.test.app-androidTest-34 /Users/rockykumar/project/File manager/app/build/generated/res/resValues/androidTest/debug
+com.rocky.filemanager.test.app-mergeDebugAndroidTestResources-35 /Users/rockykumar/project/File manager/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+com.rocky.filemanager.test.app-mergeDebugAndroidTestResources-36 /Users/rockykumar/project/File manager/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+com.rocky.filemanager.test.app-debugAndroidTest-37 /Users/rockykumar/project/File manager/app/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources

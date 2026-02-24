@@ -64,6 +64,10 @@ dependencies {
     implementation(project(":feature:archive"))
     implementation(project(":feature:viewer"))
     implementation(project(":feature:appmanager"))
+    implementation(project(":feature:automation"))
+    implementation(project(":feature:lan"))
+    implementation(project(":feature:root"))
+    implementation(project(":feature:devtools"))
     
     // Core
     implementation(libs.androidx.core.ktx)

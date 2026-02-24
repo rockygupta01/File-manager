@@ -1,0 +1,51 @@
+com.privacyfilemanager.core.ui.test.ui-foundation-release-0 /Users/rockykumar/.gradle/caches/8.10.2/transforms/0298716b9c4dbe16cf93fc026bf1217e/transformed/foundation-release/res
+com.privacyfilemanager.core.ui.test.ui-foundation-layout-release-1 /Users/rockykumar/.gradle/caches/8.10.2/transforms/037c7511513db0b2724c9c821d91a535/transformed/foundation-layout-release/res
+com.privacyfilemanager.core.ui.test.ui-material3-release-2 /Users/rockykumar/.gradle/caches/8.10.2/transforms/0719753b483b6cf6f6b60d57a15a7a7c/transformed/material3-release/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-viewmodel-ktx-2.8.7-3 /Users/rockykumar/.gradle/caches/8.10.2/transforms/08fc6b182364ea21140d6c5345031529/transformed/lifecycle-viewmodel-ktx-2.8.7/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-runtime-ktx-release-4 /Users/rockykumar/.gradle/caches/8.10.2/transforms/11463a5e9c501c6b187b6aac02621776/transformed/lifecycle-runtime-ktx-release/res
+com.privacyfilemanager.core.ui.test.ui-runtime-release-5 /Users/rockykumar/.gradle/caches/8.10.2/transforms/1173d99210f4260e502f5172d4b104ce/transformed/runtime-release/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-viewmodel-release-6 /Users/rockykumar/.gradle/caches/8.10.2/transforms/12d65bc0f06c43131f99ffd075b335d3/transformed/lifecycle-viewmodel-release/res
+com.privacyfilemanager.core.ui.test.ui-ui-tooling-release-7 /Users/rockykumar/.gradle/caches/8.10.2/transforms/198e8693b3ab17e60b58b4f33fb1e9d5/transformed/ui-tooling-release/res
+com.privacyfilemanager.core.ui.test.ui-ui-tooling-data-release-8 /Users/rockykumar/.gradle/caches/8.10.2/transforms/22f5842a8cb26a1d4efe8ce6b466946e/transformed/ui-tooling-data-release/res
+com.privacyfilemanager.core.ui.test.ui-startup-runtime-1.1.1-9 /Users/rockykumar/.gradle/caches/8.10.2/transforms/23ae8244c668e83bf2373957b2399da0/transformed/startup-runtime-1.1.1/res
+com.privacyfilemanager.core.ui.test.ui-coil-core-release-10 /Users/rockykumar/.gradle/caches/8.10.2/transforms/24dbb8410cdb1519e922ec8db92f79a6/transformed/coil-core-release/res
+com.privacyfilemanager.core.ui.test.ui-core-1.15.0-11 /Users/rockykumar/.gradle/caches/8.10.2/transforms/312f6ccbcc9045875f10dd214557913d/transformed/core-1.15.0/res
+com.privacyfilemanager.core.ui.test.ui-ui-geometry-release-12 /Users/rockykumar/.gradle/caches/8.10.2/transforms/3ae600e9a238e1c65967b60c1b5a7abe/transformed/ui-geometry-release/res
+com.privacyfilemanager.core.ui.test.ui-ui-unit-release-13 /Users/rockykumar/.gradle/caches/8.10.2/transforms/488c710422f4757b7fee729a805dea18/transformed/ui-unit-release/res
+com.privacyfilemanager.core.ui.test.ui-ui-graphics-release-14 /Users/rockykumar/.gradle/caches/8.10.2/transforms/56f901743cc06790c89daf82ad2c639f/transformed/ui-graphics-release/res
+com.privacyfilemanager.core.ui.test.ui-emoji2-1.3.0-15 /Users/rockykumar/.gradle/caches/8.10.2/transforms/611f17d6a9963e8d24aef1ac61f96517/transformed/emoji2-1.3.0/res
+com.privacyfilemanager.core.ui.test.ui-core-ktx-1.15.0-16 /Users/rockykumar/.gradle/caches/8.10.2/transforms/66cc670cf4783e345fa9c166da1c34ee/transformed/core-ktx-1.15.0/res
+com.privacyfilemanager.core.ui.test.ui-ui-text-release-17 /Users/rockykumar/.gradle/caches/8.10.2/transforms/6e30c54417fd38b814e1a60497d22e5f/transformed/ui-text-release/res
+com.privacyfilemanager.core.ui.test.ui-material-icons-extended-release-18 /Users/rockykumar/.gradle/caches/8.10.2/transforms/74872bc7a43c391fd7d6a0f3274388d7/transformed/material-icons-extended-release/res
+com.privacyfilemanager.core.ui.test.ui-activity-compose-1.8.2-19 /Users/rockykumar/.gradle/caches/8.10.2/transforms/791b070880ffa6589749dde507ef9aa7/transformed/activity-compose-1.8.2/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-livedata-core-2.8.7-20 /Users/rockykumar/.gradle/caches/8.10.2/transforms/7c7a8f9a487d0280eb52a0742192f547/transformed/lifecycle-livedata-core-2.8.7/res
+com.privacyfilemanager.core.ui.test.ui-material-ripple-release-21 /Users/rockykumar/.gradle/caches/8.10.2/transforms/7d4519cd00aaa1e6affb84a85a111612/transformed/material-ripple-release/res
+com.privacyfilemanager.core.ui.test.ui-ui-release-22 /Users/rockykumar/.gradle/caches/8.10.2/transforms/82414d3622961c93a9fda43a25814bac/transformed/ui-release/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-runtime-compose-release-23 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9356db05598a9ea38ed69aba118d8353/transformed/lifecycle-runtime-compose-release/res
+com.privacyfilemanager.core.ui.test.ui-core-runtime-2.2.0-24 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9794f8e37ba59fd858696a6e2c831bc4/transformed/core-runtime-2.2.0/res
+com.privacyfilemanager.core.ui.test.ui-appcompat-resources-1.7.0-25 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9c8977f4d27f15d62999706813c413d1/transformed/appcompat-resources-1.7.0/res
+com.privacyfilemanager.core.ui.test.ui-ui-tooling-preview-release-26 /Users/rockykumar/.gradle/caches/8.10.2/transforms/a2cc18f93b697c302bd285a407f81b9a/transformed/ui-tooling-preview-release/res
+com.privacyfilemanager.core.ui.test.ui-runtime-saveable-release-27 /Users/rockykumar/.gradle/caches/8.10.2/transforms/a8002afc6e29a086c0dab37f94c0cad6/transformed/runtime-saveable-release/res
+com.privacyfilemanager.core.ui.test.ui-tracing-1.2.0-28 /Users/rockykumar/.gradle/caches/8.10.2/transforms/b6c3ad0231f59c55174ed595e35cf8d0/transformed/tracing-1.2.0/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-process-2.8.7-29 /Users/rockykumar/.gradle/caches/8.10.2/transforms/bbb53d0e7608ae27e5a17a07245b0585/transformed/lifecycle-process-2.8.7/res
+com.privacyfilemanager.core.ui.test.ui-activity-1.8.2-30 /Users/rockykumar/.gradle/caches/8.10.2/transforms/bf292e293ed50cef6d93d56c26cbb647/transformed/activity-1.8.2/res
+com.privacyfilemanager.core.ui.test.ui-savedstate-1.2.1-31 /Users/rockykumar/.gradle/caches/8.10.2/transforms/bf3bdf35b8cdcbaac78d6a16fdd26486/transformed/savedstate-1.2.1/res
+com.privacyfilemanager.core.ui.test.ui-animation-release-32 /Users/rockykumar/.gradle/caches/8.10.2/transforms/c040efc002e72b35c24c5c5afe27bc70/transformed/animation-release/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-viewmodel-savedstate-2.8.7-33 /Users/rockykumar/.gradle/caches/8.10.2/transforms/c44ae94dd344fca81a368e385b21a7a6/transformed/lifecycle-viewmodel-savedstate-2.8.7/res
+com.privacyfilemanager.core.ui.test.ui-savedstate-ktx-1.2.1-34 /Users/rockykumar/.gradle/caches/8.10.2/transforms/cba41ad2ed3e6492ed4e590a0a80e18b/transformed/savedstate-ktx-1.2.1/res
+com.privacyfilemanager.core.ui.test.ui-annotation-experimental-1.4.1-35 /Users/rockykumar/.gradle/caches/8.10.2/transforms/cbbf492230fe367b12139390793a77ad/transformed/annotation-experimental-1.4.1/res
+com.privacyfilemanager.core.ui.test.ui-animation-core-release-36 /Users/rockykumar/.gradle/caches/8.10.2/transforms/d3daa4f243e7e9c5248a438d4177194b/transformed/animation-core-release/res
+com.privacyfilemanager.core.ui.test.ui-graphics-path-1.0.1-37 /Users/rockykumar/.gradle/caches/8.10.2/transforms/d5636e88a235baeb0028bbadc1ba6da5/transformed/graphics-path-1.0.1/res
+com.privacyfilemanager.core.ui.test.ui-material-icons-core-release-38 /Users/rockykumar/.gradle/caches/8.10.2/transforms/dcd03b07bae2cbdb712155383370f0f0/transformed/material-icons-core-release/res
+com.privacyfilemanager.core.ui.test.ui-material-release-39 /Users/rockykumar/.gradle/caches/8.10.2/transforms/ddd1962ef639976d46970d919e5d2bf1/transformed/material-release/res
+com.privacyfilemanager.core.ui.test.ui-activity-ktx-1.8.2-40 /Users/rockykumar/.gradle/caches/8.10.2/transforms/e143be860147595fd5c3c39ffafc5063/transformed/activity-ktx-1.8.2/res
+com.privacyfilemanager.core.ui.test.ui-profileinstaller-1.4.1-41 /Users/rockykumar/.gradle/caches/8.10.2/transforms/e2e898d015b12af05db0e68b1126e000/transformed/profileinstaller-1.4.1/res
+com.privacyfilemanager.core.ui.test.ui-customview-poolingcontainer-1.0.0-42 /Users/rockykumar/.gradle/caches/8.10.2/transforms/ec4639ce18c4033f91fbf435ca72973a/transformed/customview-poolingcontainer-1.0.0/res
+com.privacyfilemanager.core.ui.test.ui-ui-util-release-43 /Users/rockykumar/.gradle/caches/8.10.2/transforms/f91dd2d589a2a0c7a7e9686e865534db/transformed/ui-util-release/res
+com.privacyfilemanager.core.ui.test.ui-lifecycle-runtime-release-44 /Users/rockykumar/.gradle/caches/8.10.2/transforms/fca4b2b0666aec40c7576ccb45ecef7a/transformed/lifecycle-runtime-release/res
+com.privacyfilemanager.core.ui.test.ui-debug-45 /Users/rockykumar/project/File manager/core/common/build/intermediates/packaged_res/debug/packageDebugResources
+com.privacyfilemanager.core.ui.test.ui-androidTest-46 /Users/rockykumar/project/File manager/core/ui/build/generated/res/resValues/androidTest/debug
+com.privacyfilemanager.core.ui.test.ui-mergeDebugAndroidTestResources-47 /Users/rockykumar/project/File manager/core/ui/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+com.privacyfilemanager.core.ui.test.ui-mergeDebugAndroidTestResources-48 /Users/rockykumar/project/File manager/core/ui/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+com.privacyfilemanager.core.ui.test.ui-debugAndroidTest-49 /Users/rockykumar/project/File manager/core/ui/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources
+com.privacyfilemanager.core.ui.test.ui-debug-50 /Users/rockykumar/project/File manager/core/ui/build/intermediates/packaged_res/debug/packageDebugResources

@@ -1,0 +1,13 @@
+com.privacyfilemanager.core.common.test.common-profileinstaller-1.3.0-0 /Users/rockykumar/.gradle/caches/8.10.2/transforms/1dac8b6460fe65e4867718815bbb9ce4/transformed/profileinstaller-1.3.0/res
+com.privacyfilemanager.core.common.test.common-startup-runtime-1.1.1-1 /Users/rockykumar/.gradle/caches/8.10.2/transforms/23ae8244c668e83bf2373957b2399da0/transformed/startup-runtime-1.1.1/res
+com.privacyfilemanager.core.common.test.common-core-1.15.0-2 /Users/rockykumar/.gradle/caches/8.10.2/transforms/312f6ccbcc9045875f10dd214557913d/transformed/core-1.15.0/res
+com.privacyfilemanager.core.common.test.common-core-ktx-1.15.0-3 /Users/rockykumar/.gradle/caches/8.10.2/transforms/66cc670cf4783e345fa9c166da1c34ee/transformed/core-ktx-1.15.0/res
+com.privacyfilemanager.core.common.test.common-core-runtime-2.2.0-4 /Users/rockykumar/.gradle/caches/8.10.2/transforms/9794f8e37ba59fd858696a6e2c831bc4/transformed/core-runtime-2.2.0/res
+com.privacyfilemanager.core.common.test.common-tracing-1.2.0-5 /Users/rockykumar/.gradle/caches/8.10.2/transforms/b6c3ad0231f59c55174ed595e35cf8d0/transformed/tracing-1.2.0/res
+com.privacyfilemanager.core.common.test.common-annotation-experimental-1.4.1-6 /Users/rockykumar/.gradle/caches/8.10.2/transforms/cbbf492230fe367b12139390793a77ad/transformed/annotation-experimental-1.4.1/res
+com.privacyfilemanager.core.common.test.common-lifecycle-runtime-2.6.2-7 /Users/rockykumar/.gradle/caches/8.10.2/transforms/fd6f4bbef77d09da9d8ad200723b9898/transformed/lifecycle-runtime-2.6.2/res
+com.privacyfilemanager.core.common.test.common-androidTest-8 /Users/rockykumar/project/File manager/core/common/build/generated/res/resValues/androidTest/debug
+com.privacyfilemanager.core.common.test.common-mergeDebugAndroidTestResources-9 /Users/rockykumar/project/File manager/core/common/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+com.privacyfilemanager.core.common.test.common-mergeDebugAndroidTestResources-10 /Users/rockykumar/project/File manager/core/common/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+com.privacyfilemanager.core.common.test.common-debugAndroidTest-11 /Users/rockykumar/project/File manager/core/common/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources
+com.privacyfilemanager.core.common.test.common-debug-12 /Users/rockykumar/project/File manager/core/common/build/intermediates/packaged_res/debug/packageDebugResources

@@ -41,7 +41,11 @@ fun FileManagerScreen(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToArchive: (List<String>, String) -> Unit = { _, _ -> },
     onNavigateToViewer: (String) -> Unit = {},
-    onNavigateToAppManager: () -> Unit = {}
+    onNavigateToAppManager: () -> Unit = {},
+    onNavigateToAutomation: () -> Unit = {},
+    onNavigateToLan: () -> Unit = {},
+    onNavigateToRoot: () -> Unit = {},
+    onNavigateToDevTools: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val clipboard by viewModel.clipboard.collectAsStateWithLifecycle()
@@ -135,6 +139,34 @@ fun FileManagerScreen(
                                 else Icons.Default.Visibility,
                                 "Toggle hidden"
                             )
+                        }
+                        var showMoreMenu by remember { mutableStateOf(false) }
+                        Box {
+                            IconButton(onClick = { showMoreMenu = true }) {
+                                Icon(Icons.Default.MoreVert, "More")
+                            }
+                            DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                                DropdownMenuItem(
+                                    text = { Text("Automation") },
+                                    leadingIcon = { Icon(Icons.Default.Schedule, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToAutomation() }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("LAN Transfer") },
+                                    leadingIcon = { Icon(Icons.Default.Wifi, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToLan() }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Root Terminal") },
+                                    leadingIcon = { Icon(Icons.Default.Terminal, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToRoot() }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Dev Tools & AI") },
+                                    leadingIcon = { Icon(Icons.Default.Code, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToDevTools() }
+                                )
+                            }
                         }
                     }
                 )

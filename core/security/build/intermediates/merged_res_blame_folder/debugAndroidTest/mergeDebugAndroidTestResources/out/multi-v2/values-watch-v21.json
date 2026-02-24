@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.privacyfilemanager.core.security.test.security-mergeDebugAndroidTestResources-21:/values-watch-v21/values-watch-v21.xml",
+            "map": [
+                {
+                    "source": "/Users/rockykumar/.gradle/caches/8.10.2/transforms/bf990935c7af501cc324ec35640697e9/transformed/appcompat-1.2.0/res/values-watch-v21/values-watch-v21.xml",
+                    "from": {
+                        "startLines": "2,6,10",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,271,499",
+                        "endLines": "5,9,13",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "266,494,724"
+                    }
+                }
+            ]
+        }
+    ]
+}

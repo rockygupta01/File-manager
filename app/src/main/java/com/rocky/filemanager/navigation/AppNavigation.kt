@@ -14,7 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.privacyfilemanager.feature.appmanager.ui.AppManagerScreen
 import com.privacyfilemanager.feature.archive.ui.ArchiveScreen
+import com.privacyfilemanager.feature.automation.ui.AutomationScreen
+import com.privacyfilemanager.feature.devtools.ui.DevToolsScreen
 import com.privacyfilemanager.feature.filemanager.ui.FileManagerScreen
+import com.privacyfilemanager.feature.lan.ui.LanScreen
+import com.privacyfilemanager.feature.root.ui.RootScreen
 import com.privacyfilemanager.feature.search.ui.SearchScreen
 import com.privacyfilemanager.feature.security.ui.SecurityVaultScreen
 import com.privacyfilemanager.feature.storage.ui.StorageAnalyzerScreen
@@ -38,23 +42,21 @@ fun AppNavigation() {
                     val encodedPath = android.net.Uri.encode(path)
                     navController.navigate("viewer?path=$encodedPath")
                 },
-                onNavigateToAppManager = { navController.navigate("appmanager") }
+                onNavigateToAppManager = { navController.navigate("appmanager") },
+                onNavigateToAutomation = { navController.navigate("automation") },
+                onNavigateToLan = { navController.navigate("lan") },
+                onNavigateToRoot = { navController.navigate("root") },
+                onNavigateToDevTools = { navController.navigate("devtools") }
             )
         }
         composable("storage") {
-            StorageAnalyzerScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            StorageAnalyzerScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable("security") {
-            SecurityVaultScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            SecurityVaultScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable("search") {
-            SearchScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            SearchScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(
             route = "archive?paths={paths}&mode={mode}",
@@ -63,9 +65,7 @@ fun AppNavigation() {
                 navArgument("mode") { type = NavType.StringType; defaultValue = "compress" }
             )
         ) {
-            ArchiveScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ArchiveScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(
             route = "viewer?path={path}",
@@ -73,17 +73,26 @@ fun AppNavigation() {
                 navArgument("path") { type = NavType.StringType; defaultValue = "" }
             )
         ) {
-            ViewerScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ViewerScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable("appmanager") {
-            AppManagerScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            AppManagerScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("automation") {
+            AutomationScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("lan") {
+            LanScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("root") {
+            RootScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("devtools") {
+            DevToolsScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
+
 
 @Composable
 fun PermissionScreen(onRequestPermission: () -> Unit) {
