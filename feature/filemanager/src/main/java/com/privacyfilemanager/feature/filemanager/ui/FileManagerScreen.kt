@@ -4,7 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.size.Size
+import android.net.Uri
+import java.io.File
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -453,8 +458,12 @@ private fun FileGridView(
                 ) {
                     // Show real thumbnail for images and videos
                     if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
+                        val context = LocalContext.current
                         SubcomposeAsyncImage(
-                            model = file.path,
+                            model = ImageRequest.Builder(context)
+                                .data(Uri.fromFile(File(file.path)))
+                                .size(Size(200, 200))
+                                .build(),
                             contentDescription = file.name,
                             modifier = Modifier
                                 .fillMaxWidth()
