@@ -1,2 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.automation.viewmodel.AutomationViewModel
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.automation.viewmodel.AutomationViewModel

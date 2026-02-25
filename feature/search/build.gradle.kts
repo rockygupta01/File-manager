@@ -21,6 +21,7 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
+    implementation(project(":core:database"))
     implementation(project(":core:ui"))
 
     implementation(libs.androidx.core.ktx)
@@ -33,6 +34,10 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.animation)
     implementation(libs.androidx.ui.tooling.preview)
+
+    // WorkManager + Hilt Workers (for SearchIndexWorker)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

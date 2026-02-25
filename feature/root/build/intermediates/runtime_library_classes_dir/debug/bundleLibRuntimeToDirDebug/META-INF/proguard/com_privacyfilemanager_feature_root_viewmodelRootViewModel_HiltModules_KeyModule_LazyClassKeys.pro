@@ -1,2 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.root.viewmodel.RootViewModel
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.root.viewmodel.RootViewModel

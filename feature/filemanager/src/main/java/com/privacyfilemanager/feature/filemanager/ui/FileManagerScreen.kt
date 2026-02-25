@@ -64,6 +64,7 @@ fun FileManagerScreen(
     var showSortMenu by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var previewFile by remember { mutableStateOf<com.privacyfilemanager.core.domain.model.FileItem?>(null) } // #23
+    var renameTarget by remember { mutableStateOf<String?>(null) } // path of file to rename
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
     val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
     val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
@@ -93,6 +94,15 @@ fun FileManagerScreen(
                             viewModel.clearSelection()
                         }) {
                             Icon(Icons.Default.FolderZip, "Compress")
+                        }
+                        // Rename — only available for single selection
+                        if (uiState.selectedFiles.size == 1) {
+                            IconButton(onClick = {
+                                renameTarget = uiState.selectedFiles.first()
+                                viewModel.clearSelection()
+                            }) {
+                                Icon(Icons.Default.DriveFileRenameOutline, "Rename")
+                            }
                         }
                         IconButton(onClick = { viewModel.selectAll() }) {
                             Icon(Icons.Default.SelectAll, "Select all")
@@ -494,6 +504,18 @@ fun FileManagerScreen(
             }
         )
     }
+
+    // Rename dialog
+    renameTarget?.let { targetPath ->
+        RenameDialog(
+            currentName = java.io.File(targetPath).name,
+            onDismiss = { renameTarget = null },
+            onRename = { newName ->
+                viewModel.rename(targetPath, newName)
+                renameTarget = null
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -790,3 +812,46 @@ private fun getIconTint(category: FileCategory) = when (category) {
     FileCategory.APK -> MaterialTheme.colorScheme.primary
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }
+
+@Composable
+private fun RenameDialog(
+    currentName: String,
+    onDismiss: () -> Unit,
+    onRename: (String) -> Unit
+) {
+    var newName by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Default.DriveFileRenameOutline, contentDescription = null) },
+        title = { Text("Rename") },
+        text = {
+            OutlinedTextField(
+                value = newName,
+                onValueChange = { newName = it },
+                label = { Text("New name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val trimmed = newName.trim()
+                    if (trimmed.isNotBlank() && trimmed != currentName) {
+                        onRename(trimmed)
+                    } else {
+                        onDismiss()
+                    }
+                },
+                enabled = newName.isNotBlank()
+            ) {
+                Text("Rename")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+

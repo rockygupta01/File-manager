@@ -1,2 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerViewModel
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerViewModel

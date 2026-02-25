@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.privacyfilemanager.feature.security.viewmodel.SecurityVaultViewModel

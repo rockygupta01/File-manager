@@ -3,6 +3,10 @@ package com.rocky.filemanager
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.privacyfilemanager.feature.search.worker.SearchIndexWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.io.File
 import java.io.PrintWriter
@@ -24,6 +28,17 @@ class FileManagerApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         setupLocalCrashHandler()
+        scheduleSearchIndexing()
+    }
+
+    /** Re-indexes storage on each app start (KEEP = skip if already queued/running). */
+    private fun scheduleSearchIndexing() {
+        val request = OneTimeWorkRequestBuilder<SearchIndexWorker>().build()
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "search_index",
+            ExistingWorkPolicy.KEEP,
+            request
+        )
     }
 
     private fun setupLocalCrashHandler() {
