@@ -15,12 +15,13 @@ val localProperties = Properties().apply {
 
 android {
     namespace = "com.rocky.filemanager"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rocky.filemanager"
         minSdk = 26
-        targetSdk = 35
+        @Suppress("EditedTargetSdkVersion")
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
 
