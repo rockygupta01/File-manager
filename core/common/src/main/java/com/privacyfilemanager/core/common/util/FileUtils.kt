@@ -53,7 +53,7 @@ object FileUtils {
             // Images
             "jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "ico", "heic", "heif" -> FileCategory.IMAGE
             // Videos
-            "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "3gp", "m4v" -> FileCategory.VIDEO
+            "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "3gp", "m4v", "m2ts", "ts" -> FileCategory.VIDEO
             // Audio
             "mp3", "wav", "flac", "aac", "ogg", "wma", "m4a", "opus" -> FileCategory.AUDIO
             // Documents

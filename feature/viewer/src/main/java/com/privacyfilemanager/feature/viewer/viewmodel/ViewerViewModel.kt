@@ -34,7 +34,40 @@ class ViewerViewModel @Inject constructor(
     fun getPlayer(fileToPlay: File): ExoPlayer {
         // Only set media item if playing a different file, or if idle
         if (exoPlayer.currentMediaItem?.localConfiguration?.uri?.toString() != fileToPlay.toURI().toString()) {
-            exoPlayer.setMediaItem(MediaItem.fromUri(fileToPlay.toURI().toString()))
+            val mediaItemBuilder = MediaItem.Builder()
+                .setUri(fileToPlay.toURI().toString())
+
+            // Auto sideload subtitles if present
+            if (category == FileCategory.VIDEO) {
+                val parentDir = fileToPlay.parentFile
+                val baseName = fileToPlay.nameWithoutExtension
+                if (parentDir != null && parentDir.isDirectory) {
+                    val supportedSubExtensions = listOf("srt", "vtt", "ass", "sub")
+                    val subtitleFile = parentDir.listFiles()?.firstOrNull { 
+                        it.isFile && it.nameWithoutExtension.equals(baseName, ignoreCase = true) &&
+                        it.extension.lowercase() in supportedSubExtensions
+                    }
+                    
+                    if (subtitleFile != null) {
+                        val mimeType = when (subtitleFile.extension.lowercase()) {
+                            "srt" -> androidx.media3.common.MimeTypes.APPLICATION_SUBRIP
+                            "vtt" -> androidx.media3.common.MimeTypes.TEXT_VTT
+                            "ass", "ssa" -> androidx.media3.common.MimeTypes.TEXT_SSA
+                            else -> androidx.media3.common.MimeTypes.APPLICATION_SUBRIP
+                        }
+                        
+                        val subtitleConfig = MediaItem.SubtitleConfiguration.Builder(android.net.Uri.fromFile(subtitleFile))
+                            .setMimeType(mimeType)
+                            .setLanguage("en")
+                            .setSelectionFlags(androidx.media3.common.C.SELECTION_FLAG_DEFAULT)
+                            .build()
+                            
+                        mediaItemBuilder.setSubtitleConfigurations(listOf(subtitleConfig))
+                    }
+                }
+            }
+
+            exoPlayer.setMediaItem(mediaItemBuilder.build())
             exoPlayer.prepare()
         }
         exoPlayer.playWhenReady = true

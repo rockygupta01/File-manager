@@ -147,8 +147,7 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?, view
                 )
             }
         }
-        FileCategory.VIDEO -> AdvancedVideoPlayer(viewModel.getPlayer(file))
-        FileCategory.AUDIO -> {
+        FileCategory.VIDEO, FileCategory.AUDIO -> {
             val context = LocalContext.current
             LaunchedEffect(file) {
                 val intent = android.content.Intent(context, com.privacyfilemanager.feature.viewer.service.MediaPlaybackService::class.java)
@@ -156,7 +155,11 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?, view
                     context.startService(intent) // Triggers foreground notification
                 } catch (e: Exception) { e.printStackTrace() }
             }
-            AudioPlayerScreen(file = file, exoPlayer = viewModel.getPlayer(file))
+            if (category == FileCategory.VIDEO) {
+                AdvancedVideoPlayer(viewModel.getPlayer(file))
+            } else {
+                AudioPlayerScreen(file = file, exoPlayer = viewModel.getPlayer(file))
+            }
         }
         FileCategory.PDF -> {
             PdfViewer(file)
