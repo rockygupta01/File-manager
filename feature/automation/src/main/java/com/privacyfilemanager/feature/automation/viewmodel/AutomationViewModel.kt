@@ -68,8 +68,10 @@ class AutomationViewModel @Inject constructor(
                 workManager.enqueueUniquePeriodicWork(rule.id, ExistingPeriodicWorkPolicy.REPLACE, request)
             }
             RuleType.AUTO_CLEANUP -> {
+                // BUG 3 FIX: Use cacheDir instead of broadly scanning all external storage
+                val cachePath = context.externalCacheDir?.absolutePath ?: context.cacheDir.absolutePath
                 val data = workDataOf(
-                    CleanupWorker.KEY_ROOT_PATH to Environment.getExternalStorageDirectory().absolutePath,
+                    CleanupWorker.KEY_ROOT_PATH to cachePath,
                     CleanupWorker.KEY_MAX_AGE_DAYS to 30
                 )
                 val request = PeriodicWorkRequestBuilder<CleanupWorker>(
@@ -97,8 +99,10 @@ class AutomationViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(statusMessage = "Backup started…")
             }
             RuleType.AUTO_CLEANUP -> {
+                // BUG 3 FIX: Use cacheDir instead of broadly scanning all external storage
+                val cachePath = context.externalCacheDir?.absolutePath ?: context.cacheDir.absolutePath
                 val data = workDataOf(
-                    CleanupWorker.KEY_ROOT_PATH to Environment.getExternalStorageDirectory().absolutePath,
+                    CleanupWorker.KEY_ROOT_PATH to cachePath,
                     CleanupWorker.KEY_MAX_AGE_DAYS to 30
                 )
                 val request = OneTimeWorkRequestBuilder<CleanupWorker>().setInputData(data).build()

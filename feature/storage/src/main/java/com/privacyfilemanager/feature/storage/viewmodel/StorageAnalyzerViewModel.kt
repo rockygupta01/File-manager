@@ -21,10 +21,16 @@ class StorageAnalyzerViewModel @Inject constructor(
     val uiState: StateFlow<StorageAnalyzerUiState> = _uiState.asStateFlow()
 
     init {
-        loadStats()
-        loadLargeFiles()
-        loadDuplicateFiles()
-        loadJunkFiles()
+        // BUG 7 FIX: Stagger intensive parallel storage scans to avoid overloading device I/O entirely
+        viewModelScope.launch {
+            loadStats()
+            kotlinx.coroutines.delay(250)
+            loadLargeFiles()
+            kotlinx.coroutines.delay(250)
+            loadDuplicateFiles()
+            kotlinx.coroutines.delay(250)
+            loadJunkFiles()
+        }
     }
 
     private fun loadStats() {

@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
     private var showOnboarding by mutableStateOf(false)  // #1
     private var isDarkTheme by mutableStateOf<Boolean?>(null)  // #22: null = follow system
     private var isAppUnlocked by mutableStateOf(false) // tracks whether lock screen has been passed this session
+    private var lastPauseTime = 0L // tracks when the app went to background
 
     private val storagePermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -199,13 +200,31 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         hasStoragePermission = checkStoragePermission()
+
+        // BUG 6 FIX: Enforce lock screen if app was in background longer than timeoutMinutes
+        if (appLockManager.isLockEnabled && isAppUnlocked && lastPauseTime > 0) {
+            val elapsedMs = System.currentTimeMillis() - lastPauseTime
+            if (elapsedMs > appLockManager.timeoutMinutes * 60_000L) {
+                isAppUnlocked = false
+            }
+        }
+        lastPauseTime = 0L
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Record when app goes to background
+        lastPauseTime = System.currentTimeMillis()
     }
 
     private fun checkStoragePermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
         } else {
-            true // Pre-R devices use legacy permissions requested at install
+            // BUG 5 FIX: Properly check read external storage permission on Android 10 and below.
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         }
     }
 

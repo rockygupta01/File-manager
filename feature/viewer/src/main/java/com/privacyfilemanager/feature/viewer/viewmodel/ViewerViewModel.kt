@@ -13,10 +13,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import android.content.Context
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 @HiltViewModel
 class ViewerViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val pathString: String = savedStateHandle.get<String>("path") ?: ""
@@ -24,6 +29,24 @@ class ViewerViewModel @Inject constructor(
     
     val category: FileCategory = FileUtils.getFileCategory(file)
     val fileName: String = file.name
+
+    var exoPlayer: ExoPlayer? = null
+        private set
+
+    fun getPlayer(fileToPlay: File): ExoPlayer {
+        return exoPlayer ?: ExoPlayer.Builder(appContext).build().apply {
+            setMediaItem(MediaItem.fromUri(fileToPlay.toURI().toString()))
+            prepare()
+            playWhenReady = true
+            exoPlayer = this
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        exoPlayer?.release()
+        exoPlayer = null
+    }
 
     private val _uiState = MutableStateFlow(ViewerUiState())
     val uiState: StateFlow<ViewerUiState> = _uiState.asStateFlow()

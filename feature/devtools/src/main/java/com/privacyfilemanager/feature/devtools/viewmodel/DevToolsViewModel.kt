@@ -54,14 +54,17 @@ class DevToolsViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isTerminalLoading = true, currentCommand = "")
             val output = withContext(Dispatchers.IO) {
                 try {
-                    val parts = cmd.split(" ").filter { it.isNotBlank() }
-                    val process = Runtime.getRuntime().exec(parts.toTypedArray())
-                    val out = process.inputStream.bufferedReader().readText()
-                    val err = process.errorStream.bufferedReader().readText()
+                    val process = ProcessBuilder("sh", "-c", cmd)
+                        .redirectErrorStream(true)
+                        .start()
+                    
+                    // BUG 1 FIX: Read combined stdout+stderr from one stream to prevent OS pipe deadlocks.
+                    // Also limit output to 1MB to prevent Out-Of-Memory crashes.
+                    val out = process.inputStream.bufferedReader().use { it.readText().take(1024 * 1024) }
                     process.waitFor()
+                    
                     buildString {
                         if (out.isNotBlank()) append(out)
-                        if (err.isNotBlank()) append("ERR: $err")
                     }.ifBlank { "(no output)" }
                 } catch (e: Exception) {
                     "Error: ${e.message}"
@@ -83,11 +86,10 @@ class DevToolsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isOcrLoading = true, ocrError = null)
             try {
-                val bitmap = withContext(Dispatchers.IO) {
-                    BitmapFactory.decodeFile(File(path).absolutePath)
-                } ?: throw Exception("Could not decode image")
-
-                val image = InputImage.fromBitmap(bitmap, 0)
+                // BUG 6 FIX: let MLKit handle Uri directly with auto-scaling to prevent OutOfMemory crashes on large 4k images. 
+                val uri = android.net.Uri.fromFile(File(path))
+                val image = InputImage.fromFilePath(context, uri)
+                
                 val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
                 // Use suspendCancellableCoroutine instead of .await() to avoid play-services dep

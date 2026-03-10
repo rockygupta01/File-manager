@@ -75,12 +75,13 @@ class EncryptionManager @Inject constructor(
      * Secure delete — overwrite with random bytes before deletion.
      * Makes file unrecoverable even with forensic tools.
      */
-    fun secureDelete(file: File, passes: Int = 3): Boolean {
+    // BUG 2 FIX: Reduced default passes to 1 and increased buffer to 64KB to prevent OOM/ANRs
+    fun secureDelete(file: File, passes: Int = 1): Boolean {
         if (!file.exists()) return false
 
         try {
             val random = SecureRandom()
-            val buffer = ByteArray(8192)
+            val buffer = ByteArray(65536)
 
             repeat(passes) {
                 RandomAccessFile(file, "rw").use { raf ->

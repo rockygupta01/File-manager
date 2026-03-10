@@ -183,7 +183,15 @@ class LocalFileRepository @Inject constructor() : FileRepository {
 
             sourcePaths.forEachIndexed { index, sourcePath ->
                 val source = File(sourcePath)
-                val target = File(destDir, source.name)
+                var target = File(destDir, source.name)
+
+                // BUG 2 FIX: Do not silently overwrite — auto-rename if target exists matching copy behavior
+                if (target.exists()) {
+                    val base = source.nameWithoutExtension
+                    val ext = if (source.extension.isNotEmpty()) ".${source.extension}" else ""
+                    var counter = 1
+                    while (target.exists()) { target = File(destDir, "${base}_copy${counter++}${ext}") }
+                }
 
                 // Try rename first (instant for same filesystem)
                 if (!source.renameTo(target)) {

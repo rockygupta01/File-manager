@@ -34,6 +34,20 @@ class LanViewModel @Inject constructor(
 
     fun startServer() {
         try {
+            // BUG 1 FIX: Guard against missing storage permissions before starting server
+            val hasPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                Environment.isExternalStorageManager()
+            } else {
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            }
+            
+            if (!hasPermission) {
+                _uiState.value = _uiState.value.copy(error = "Storage permission required to start LAN server")
+                return
+            }
+
             val port = _uiState.value.port
             val rootDir = Environment.getExternalStorageDirectory()
             server = LocalFileServer(port, rootDir)

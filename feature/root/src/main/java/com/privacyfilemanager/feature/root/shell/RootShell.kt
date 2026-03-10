@@ -13,11 +13,14 @@ object RootShell {
 
     suspend fun execute(command: String): ShellResult = withContext(Dispatchers.IO) {
         try {
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
-            val output = process.inputStream.bufferedReader().readText()
-            val error = process.errorStream.bufferedReader().readText()
+            // BUG 3 FIX: Use ProcessBuilder and redirectErrorStream to prevent deadlocks from full buffers
+            // Use stream `.use` and `.take(5 * 1024 * 1024)` to cap output at 5MB preventing OOM
+            val process = ProcessBuilder("su", "-c", command)
+                .redirectErrorStream(true)
+                .start()
+            val output = process.inputStream.bufferedReader().use { it.readText().take(5 * 1024 * 1024) }
             val exitCode = process.waitFor()
-            ShellResult(output, error, exitCode)
+            ShellResult(output, "", exitCode)
         } catch (e: Exception) {
             ShellResult("", e.message ?: "Unknown error", -1)
         }

@@ -65,9 +65,17 @@ class AppManagerRepository @Inject constructor(
             }
             val sourceFile = File(app.apkPath)
             val destFile = File(destinationDir, "${app.name}_${app.versionName}.apk")
+            val tempFile = File(destinationDir, "${app.name}_${app.versionName}.apk.tmp")
             
-            sourceFile.copyTo(destFile, overwrite = true)
-            emit(Result.Success(destFile.absolutePath))
+            try {
+                sourceFile.copyTo(tempFile, overwrite = true)
+                // BUG 8 FIX: Rename temp file after successful copy to prevent corrupt partial backups
+                tempFile.renameTo(destFile)
+                emit(Result.Success(destFile.absolutePath))
+            } catch (e: Exception) {
+                if (tempFile.exists()) tempFile.delete()
+                throw e
+            }
         } catch (e: Exception) {
             emit(Result.Error(e.message ?: "Failed to backup app"))
         }

@@ -30,6 +30,9 @@ class SearchIndexWorker @AssistedInject constructor(
             val entries = mutableListOf<SearchIndexEntity>()
             val rootDir = Environment.getExternalStorageDirectory()
 
+            // BUG 4 FIX: Clear the old index to make inserts idempotent and remove stale rows.
+            searchIndexDao.clearIndex()
+
             // Walk the external storage tree, collecting file metadata
             rootDir.walkTopDown()
                 .onEnter { dir ->

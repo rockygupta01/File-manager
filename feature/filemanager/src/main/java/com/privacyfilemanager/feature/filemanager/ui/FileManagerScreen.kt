@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.size.Size
 import android.net.Uri
@@ -664,37 +666,25 @@ private fun FileGridView(
                                 .aspectRatio(1f)
                                 .clip(MaterialTheme.shapes.medium)
                         ) {
-                            when (painter.state) {
-                                is coil3.compose.AsyncImagePainter.State.Success -> {
-                                    androidx.compose.foundation.Image(
-                                        painter = painter,
-                                        contentDescription = file.name,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
+                            val state = painter.state
+                            if (state.javaClass.simpleName == "Loading") {
+                                Box(
+                                    modifier = Modifier.fillMaxSize().background(shimmerBrush())
+                                )
+                            } else if (state.javaClass.simpleName == "Error") {
+                                Box(
+                                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = getFileIcon(file.category),
+                                        contentDescription = null,
+                                        tint = getIconTint(file.category),
+                                        modifier = Modifier.size(40.dp)
                                     )
                                 }
-                                is coil3.compose.AsyncImagePainter.State.Loading -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(modifier = Modifier.size(24.dp),
-                                            strokeWidth = 2.dp)
-                                    }
-                                }
-                                else -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = getFileIcon(file.category),
-                                            contentDescription = null,
-                                            tint = getIconTint(file.category),
-                                            modifier = Modifier.size(40.dp)
-                                        )
-                                    }
-                                }
+                            } else {
+                                SubcomposeAsyncImageContent()
                             }
                         }
                     } else {

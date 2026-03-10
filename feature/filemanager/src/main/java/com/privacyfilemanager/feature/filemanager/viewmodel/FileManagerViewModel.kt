@@ -69,9 +69,18 @@ class FileManagerViewModel @Inject constructor(
     fun navigateUp(): Boolean {
         val current = _uiState.value.currentPath
         val root = Environment.getExternalStorageDirectory().absolutePath
-        if (current == root || current == "/") return false
+        val currentFile = java.io.File(current)
+        val rootFile = java.io.File(root)
+        
+        // BUG 5 FIX: Prevent ascending out of the external storage sandbox via symlink tricks
+        if (current == root || current == "/" || !currentFile.canonicalPath.startsWith(rootFile.canonicalPath)) return false
 
-        val parent = java.io.File(current).parent ?: return false
+        val parent = currentFile.parent ?: return false
+        if (parent == "/" || !java.io.File(parent).canonicalPath.startsWith(rootFile.canonicalPath)) {
+            navigateTo(root)
+            return true
+        }
+        
         navigateTo(parent)
         return true
     }
@@ -175,30 +184,46 @@ class FileManagerViewModel @Inject constructor(
 
     fun createNewFile(name: String) {
         viewModelScope.launch {
-            fileRepository.createFile(_uiState.value.currentPath, name)
-            refreshCurrentDirectory()
+            try {
+                fileRepository.createFile(_uiState.value.currentPath, name)
+                refreshCurrentDirectory()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 
     fun createNewFolder(name: String) {
         viewModelScope.launch {
-            fileRepository.createDirectory(_uiState.value.currentPath, name)
-            refreshCurrentDirectory()
+            try {
+                fileRepository.createDirectory(_uiState.value.currentPath, name)
+                refreshCurrentDirectory()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 
     fun deleteSelected() {
         viewModelScope.launch {
-            fileRepository.delete(_uiState.value.selectedFiles.toList())
-            clearSelection()
-            refreshCurrentDirectory()
+            try {
+                fileRepository.delete(_uiState.value.selectedFiles.toList())
+                clearSelection()
+                refreshCurrentDirectory()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 
     fun rename(path: String, newName: String) {
         viewModelScope.launch {
-            fileRepository.rename(path, newName)
-            refreshCurrentDirectory()
+            try {
+                fileRepository.rename(path, newName)
+                refreshCurrentDirectory()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
         }
     }
 

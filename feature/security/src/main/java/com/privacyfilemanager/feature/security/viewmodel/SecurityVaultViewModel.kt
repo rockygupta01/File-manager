@@ -80,7 +80,8 @@ class SecurityVaultViewModel @Inject constructor(
 
                     ZipOutputStream(backupFile.outputStream().buffered()).use { zip ->
                         // Back up all Room database files
-                        val dbDir = context.getDatabasePath("app_database").parentFile
+                        // BUG 7 FIX: Use actual database name "privacy_file_manager.db"
+                        val dbDir = context.getDatabasePath("privacy_file_manager.db").parentFile
                         dbDir?.listFiles()?.forEach { dbFile ->
                             if (dbFile.exists()) {
                                 zip.putNextEntry(ZipEntry("db/${dbFile.name}"))

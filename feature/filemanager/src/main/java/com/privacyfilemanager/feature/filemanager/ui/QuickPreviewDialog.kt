@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import com.privacyfilemanager.core.common.util.FileUtils
 import com.privacyfilemanager.core.common.util.FileCategory
@@ -69,30 +71,22 @@ fun QuickPreviewDialog(
                             .heightIn(max = 400.dp)
                             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     ) {
-                        when (painter.state) {
-                            is coil3.compose.AsyncImagePainter.State.Success -> {
-                                androidx.compose.foundation.Image(
-                                    painter = painter,
-                                    contentDescription = file.name,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                        val state = painter.state
+                        if (state.javaClass.simpleName == "Loading") {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
+                        } else if (state.javaClass.simpleName == "Error") {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Image, null, modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            is coil3.compose.AsyncImagePainter.State.Loading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().height(200.dp),
-                                    contentAlignment = Alignment.Center
-                                ) { CircularProgressIndicator() }
-                            }
-                            else -> {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().height(200.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.Image, null, modifier = Modifier.size(64.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            }
+                        } else {
+                            SubcomposeAsyncImageContent()
                         }
                     }
                 } else {

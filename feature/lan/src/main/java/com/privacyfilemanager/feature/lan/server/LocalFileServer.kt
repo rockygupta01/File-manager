@@ -18,6 +18,11 @@ class LocalFileServer(
             session.method == Method.GET && uri.isEmpty() -> serveDirectory(rootDir, "/")
             session.method == Method.GET -> {
                 val file = File(rootDir, uri)
+                // BUG 1 FIX: Prevent path traversal by escaping the root directory
+                if (!file.canonicalPath.startsWith(rootDir.canonicalPath)) {
+                    return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Forbidden")
+                }
+                
                 when {
                     file.isDirectory -> serveDirectory(file, "/$uri")
                     file.isFile -> serveFile(file)

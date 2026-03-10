@@ -85,7 +85,8 @@ fun ViewerScreen(
                     ContentViewer(
                         category = viewModel.category, 
                         file = uiState.file!!, 
-                        textContent = uiState.textContent
+                        textContent = uiState.textContent,
+                        viewModel = viewModel
                     )
                 }
             }
@@ -94,7 +95,7 @@ fun ViewerScreen(
 }
 
 @Composable
-fun ContentViewer(category: FileCategory, file: File, textContent: String?) {
+fun ContentViewer(category: FileCategory, file: File, textContent: String?, viewModel: ViewerViewModel) {
     when (category) {
         FileCategory.IMAGE -> {
             AsyncImage(
@@ -105,7 +106,7 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?) {
             )
         }
         FileCategory.VIDEO, FileCategory.AUDIO -> {
-            MediaPlayer(file)
+            MediaPlayer(file, viewModel)
         }
         FileCategory.PDF -> {
             PdfViewer(file)
@@ -138,20 +139,30 @@ fun TextViewer(content: String) {
     }
 }
 
-@Composable
-fun MediaPlayer(file: File) {
-    val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(file.toURI().toString()))
-            prepare()
-            playWhenReady = true
-        }
-    }
+fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
+    is android.app.Activity -> this
+    is android.content.ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
 
-    DisposableEffect(Unit) {
+@Composable
+fun MediaPlayer(file: File, viewModel: ViewerViewModel) {
+    val context = LocalContext.current
+    val exoPlayer = viewModel.getPlayer(file)
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                val activity = context.findActivity()
+                if (activity == null || !activity.isChangingConfigurations) {
+                    exoPlayer.pause()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
-            exoPlayer.release()
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -160,6 +171,9 @@ fun MediaPlayer(file: File) {
             PlayerView(ctx).apply {
                 player = exoPlayer
             }
+        },
+        onRelease = { view ->
+            view.player = null
         },
         modifier = Modifier.fillMaxSize()
     )

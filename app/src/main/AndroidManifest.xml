@@ -30,10 +30,8 @@
     <!-- Biometrics -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
-    <!-- EXPLICITLY BLOCK INTERNET (privacy-first) -->
-    <uses-permission
-        android:name="android.permission.INTERNET"
-        tools:node="remove" />
+    <!-- INTERNET Required for NanoHTTPD local socket binding on some devices -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".FileManagerApp"

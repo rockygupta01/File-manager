@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
  */
 
 @Composable
-private fun shimmerBrush(): Brush {
+fun shimmerBrush(): Brush {
     val shimmerColors = listOf(
         MaterialTheme.colorScheme.surfaceVariant,
         MaterialTheme.colorScheme.surface,

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.isActive
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
@@ -26,7 +27,11 @@ class ArchiveManager @Inject constructor() {
         try {
             val destFile = File(destinationZipPath)
             if (destFile.exists()) {
-                destFile.delete()
+                // BUG 4 FIX: Ensure deletion actually succeeds, else abort
+                if (!destFile.delete()) {
+                    emit(Result.Error("Failed to delete existing destination file. Compression aborted."))
+                    return@flow
+                }
             }
             
             val zipFile = if (password.isNullOrEmpty()) {
@@ -57,7 +62,12 @@ class ArchiveManager @Inject constructor() {
 
             // Wait for completion if running in thread
             while (progressMonitor.state == ProgressMonitor.State.BUSY) {
-                // We could emit progress here: emit(Result.Loading(progressMonitor.percentDone))
+                // BUG 4 FIX: Support coroutine cancellation to prevent infinite loop
+                if (!kotlinx.coroutines.currentCoroutineContext().isActive) {
+                    progressMonitor.isCancelAllTasks = true
+                    emit(Result.Error("Compression canceled"))
+                    return@flow
+                }
                 kotlinx.coroutines.delay(100)
             }
             
@@ -103,6 +113,12 @@ class ArchiveManager @Inject constructor() {
             zipFile.extractAll(destinationFolder)
 
             while (progressMonitor.state == ProgressMonitor.State.BUSY) {
+                // BUG 4 FIX: Support coroutine cancellation to prevent infinite loop
+                if (!kotlinx.coroutines.currentCoroutineContext().isActive) {
+                    progressMonitor.isCancelAllTasks = true
+                    emit(Result.Error("Extraction canceled"))
+                    return@flow
+                }
                 kotlinx.coroutines.delay(100)
             }
 
