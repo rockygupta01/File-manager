@@ -98,14 +98,21 @@ fun ViewerScreen(
 fun ContentViewer(category: FileCategory, file: File, textContent: String?, viewModel: ViewerViewModel) {
     when (category) {
         FileCategory.IMAGE -> {
-            AsyncImage(
-                model = file,
-                contentDescription = file.name,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
+            ZoomableBox {
+                AsyncImage(
+                    model = file,
+                    contentDescription = file.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
-        FileCategory.VIDEO, FileCategory.AUDIO -> {
+        FileCategory.VIDEO -> {
+            ZoomableBox {
+                MediaPlayer(file, viewModel)
+            }
+        }
+        FileCategory.AUDIO -> {
             MediaPlayer(file, viewModel)
         }
         FileCategory.PDF -> {
@@ -204,11 +211,14 @@ fun PdfViewer(file: File) {
     }
 
     if (pageCount > 0 && renderer != null) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(pageCount) { index ->
-                PdfPage(renderer!!, index)
+        var currentScale by remember { mutableFloatStateOf(1f) }
+        ZoomableBox(onScaleChanged = { currentScale = it }) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(pageCount) { index ->
+                    PdfPage(renderer!!, index, currentScale)
+                }
             }
         }
     } else {
@@ -219,24 +229,30 @@ fun PdfViewer(file: File) {
 }
 
 @Composable
-fun PdfPage(renderer: PdfRenderer, pageIndex: Int) {
+fun PdfPage(renderer: PdfRenderer, pageIndex: Int, currentScale: Float = 1f) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    
+    // Debounce or bucket scale to avoid excessive re-rendering.
+    val targetRenderScale = if (currentScale > 2.5f) 3f else if (currentScale > 1.5f) 2f else 1f
 
-    LaunchedEffect(pageIndex) {
+    LaunchedEffect(pageIndex, targetRenderScale) {
         withContext(Dispatchers.IO) {
-            try {
-                val page = renderer.openPage(pageIndex)
-                // A4 size roughly 210x297mm. Multiply by 3 for reasonable quality
-                val width = page.width * 2
-                val height = page.height * 2
-                val bm = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                // white background
-                bm.eraseColor(android.graphics.Color.WHITE)
-                page.render(bm, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                page.close()
-                bitmap = bm
-            } catch (e: Exception) {
-                e.printStackTrace()
+            // Add synchronized block to prevent PdfRenderer "Current page not closed" exception.
+            synchronized(renderer) {
+                try {
+                    val page = renderer.openPage(pageIndex)
+                    // A4 size roughly 210x297mm. Multiply by 2 * targetRenderScale for sharp zoom
+                    val width = (page.width * 2 * targetRenderScale).toInt()
+                    val height = (page.height * 2 * targetRenderScale).toInt()
+                    val bm = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    // white background
+                    bm.eraseColor(android.graphics.Color.WHITE)
+                    page.render(bm, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    page.close()
+                    bitmap = bm
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }

@@ -27,6 +27,7 @@ import com.privacyfilemanager.feature.search.viewmodel.SearchViewModel
 @Composable
 fun SearchScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToViewer: (String) -> Unit = {},
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -148,7 +149,11 @@ fun SearchScreen(
                             }
                             items(uiState.results, key = { it.path }) { file ->
                                 ListItem(
-                                    modifier = Modifier.clickable { /* open file */ },
+                                    modifier = Modifier.clickable {
+                                        if (!file.isDirectory) {
+                                            onNavigateToViewer(file.path)
+                                        }
+                                    },
                                     headlineContent = {
                                         Text(file.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     },

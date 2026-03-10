@@ -15,9 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.privacyfilemanager.core.database.dao.SearchIndexDao
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
+    private val searchIndexDao: SearchIndexDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -68,25 +71,61 @@ class SearchViewModel @Inject constructor(
                 MimeFilter.DOCS   -> "application/"
                 MimeFilter.ALL    -> null
             }
-            when (val result = fileRepository.searchFiles(
-                query = query,
-                rootPath = rootPath,
-                mimeTypeFilter = mimeType,
-                searchContent = state.searchContent,
-                searchMetadata = state.searchMetadata
-            )) {
-                is Result.Success -> {
+            try {
+                if (!state.searchContent && !state.searchMetadata) {
+                    val entities = if (mimeType == null) {
+                        searchIndexDao.searchList(query)
+                    } else {
+                        searchIndexDao.searchListWithFilter(query, mimeType)
+                    }
+                    // Validate existence to prevent showing stale deleted files
+                    val validFiles = entities.filter { java.io.File(it.filePath).exists() }
+                    
+                    val results = validFiles.map { 
+                        FileItem(
+                            path = it.filePath,
+                            name = it.fileName,
+                            isDirectory = java.io.File(it.filePath).isDirectory,
+                            size = it.size,
+                            lastModified = it.lastModified,
+                            mimeType = it.mimeType,
+                            category = com.privacyfilemanager.core.common.util.FileUtils.getFileCategory(java.io.File(it.filePath)),
+                            isHidden = false,
+                            isReadable = true,
+                            isWritable = true,
+                            childCount = 0
+                        )
+                    }
                     val updated = (listOf(query) + state.recentSearches).distinct().take(5)
                     _uiState.value = _uiState.value.copy(
-                        results = result.data,
+                        results = results,
                         isLoading = false,
                         recentSearches = updated
                     )
+                } else {
+                    when (val result = fileRepository.searchFiles(
+                        query = query,
+                        rootPath = rootPath,
+                        mimeTypeFilter = mimeType,
+                        searchContent = state.searchContent,
+                        searchMetadata = state.searchMetadata
+                    )) {
+                        is Result.Success -> {
+                            val updated = (listOf(query) + state.recentSearches).distinct().take(5)
+                            _uiState.value = _uiState.value.copy(
+                                results = result.data,
+                                isLoading = false,
+                                recentSearches = updated
+                            )
+                        }
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(isLoading = false, error = result.message)
+                        }
+                        is Result.Loading -> {}
+                    }
                 }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.message)
-                }
-                is Result.Loading -> {}
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
     }

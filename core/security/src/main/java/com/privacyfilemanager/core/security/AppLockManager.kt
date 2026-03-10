@@ -96,6 +96,10 @@ class AppLockManager @Inject constructor(
         prefs.edit()
             .remove(KEY_PIN_HASH)
             .remove(KEY_PIN_SALT)
+            .remove(KEY_BIOMETRIC_ENABLED)
+            .remove(KEY_TIMEOUT_MINUTES)
+            .remove(KEY_FAILED_ATTEMPTS)
+            .remove(KEY_LOCKOUT_UNTIL)
             .putBoolean(KEY_LOCK_ENABLED, false)
             .apply()
     }

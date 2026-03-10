@@ -72,8 +72,25 @@ fun FileManagerScreen(
     val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
 
     val fileToOpen = uiState.fileToOpen
+    val context = LocalContext.current
     androidx.compose.runtime.LaunchedEffect(fileToOpen) {
-        fileToOpen?.let { viewModel.clearFileToOpen() }
+        fileToOpen?.let { file ->
+            try {
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    java.io.File(file.path)
+                )
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, file.mimeType.ifEmpty { "*/*" })
+                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(android.content.Intent.createChooser(intent, "Open with"))
+            } catch (e: Exception) {
+                // Ignore if no app can handle
+            }
+            viewModel.clearFileToOpen()
+        }
     }
     androidx.activity.compose.BackHandler(enabled = !isAtRoot) {
         viewModel.navigateUp()
@@ -174,8 +191,39 @@ fun FileManagerScreen(
                                 contentDescription = "Toggle view"
                             )
                         }
-                        IconButton(onClick = { showSortMenu = !showSortMenu }) {
-                            Icon(Icons.Default.SortByAlpha, contentDescription = "Sort")
+                        Box {
+                            IconButton(onClick = { showSortMenu = true }) {
+                                Icon(Icons.Default.SortByAlpha, contentDescription = "Sort")
+                            }
+                            DropdownMenu(
+                                expanded = showSortMenu,
+                                onDismissRequest = { showSortMenu = false }
+                            ) {
+                                val currentSort = uiState.sortConfig
+                                DropdownMenuItem(
+                                    text = { Text(if (currentSort.sortOrder == com.privacyfilemanager.core.domain.model.SortOrder.ASCENDING) "Ascending \u2191" else "Descending \u2193") },
+                                    onClick = {
+                                        val newOrder = if (currentSort.sortOrder == com.privacyfilemanager.core.domain.model.SortOrder.ASCENDING) com.privacyfilemanager.core.domain.model.SortOrder.DESCENDING else com.privacyfilemanager.core.domain.model.SortOrder.ASCENDING
+                                        viewModel.setSortConfig(currentSort.copy(sortOrder = newOrder))
+                                        showSortMenu = false
+                                    }
+                                )
+                                HorizontalDivider()
+                                com.privacyfilemanager.core.domain.model.SortBy.values().forEach { sortBy ->
+                                    DropdownMenuItem(
+                                        text = { Text(sortBy.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                        trailingIcon = {
+                                            if (currentSort.sortBy == sortBy) {
+                                                Icon(Icons.Default.Check, "Selected")
+                                            }
+                                        },
+                                        onClick = {
+                                            viewModel.setSortConfig(currentSort.copy(sortBy = sortBy))
+                                            showSortMenu = false
+                                        }
+                                    )
+                                }
+                            }
                         }
 
                         // ── Overflow menu ──

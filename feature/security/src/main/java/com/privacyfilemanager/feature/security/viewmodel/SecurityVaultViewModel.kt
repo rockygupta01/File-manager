@@ -105,6 +105,7 @@ class SecurityVaultViewModel @Inject constructor(
                             backupMessage = "Backup saved: ${backupFile.name}"
                         )
                     }
+                    loadBackups() // Refresh the list
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         _uiState.value = _uiState.value.copy(

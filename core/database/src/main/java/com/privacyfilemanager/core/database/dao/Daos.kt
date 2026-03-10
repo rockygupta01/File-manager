@@ -114,8 +114,14 @@ interface SearchIndexDao {
     @Query("SELECT * FROM search_index WHERE fileName LIKE '%' || :query || '%' ORDER BY lastModified DESC")
     fun search(query: String): PagingSource<Int, SearchIndexEntity>
 
+    @Query("SELECT * FROM search_index WHERE fileName LIKE '%' || :query || '%' ORDER BY lastModified DESC LIMIT 100")
+    suspend fun searchList(query: String): List<SearchIndexEntity>
+
     @Query("SELECT * FROM search_index WHERE fileName LIKE '%' || :query || '%' AND mimeType LIKE :mimeFilter || '%' ORDER BY lastModified DESC")
     fun searchWithFilter(query: String, mimeFilter: String): PagingSource<Int, SearchIndexEntity>
+
+    @Query("SELECT * FROM search_index WHERE fileName LIKE '%' || :query || '%' AND mimeType LIKE :mimeFilter || '%' ORDER BY lastModified DESC LIMIT 100")
+    suspend fun searchListWithFilter(query: String, mimeFilter: String): List<SearchIndexEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entries: List<SearchIndexEntity>)

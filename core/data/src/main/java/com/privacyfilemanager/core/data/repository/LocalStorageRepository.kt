@@ -72,11 +72,14 @@ class LocalStorageRepository @Inject constructor() : StorageRepository {
             for (file in files) {
                 // Rough hash: just read first 8KB to save time
                 val hash = file.runCatching {
-                    java.security.MessageDigest.getInstance("MD5").let { md ->
+                    java.security.MessageDigest.getInstance("SHA-256").let { md ->
                         inputStream().use { input ->
                             val buffer = ByteArray(8192)
-                            val read = input.read(buffer)
-                            if (read > 0) md.update(buffer, 0, read)
+                            var read = input.read(buffer)
+                            while (read > 0) {
+                                md.update(buffer, 0, read)
+                                read = input.read(buffer)
+                            }
                         }
                         md.digest().joinToString("") { "%02x".format(it) }
                     }

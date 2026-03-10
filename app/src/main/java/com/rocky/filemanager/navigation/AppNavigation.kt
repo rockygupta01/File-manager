@@ -57,7 +57,7 @@ fun AppNavigation(
                 onNavigateToSearch = { navController.navigate("search") },
                 onNavigateToSettings = { navController.navigate("security") },
                 onNavigateToArchive = { paths, mode ->
-                    val encodedPaths = android.net.Uri.encode(paths.joinToString(","))
+                    val encodedPaths = android.net.Uri.encode(paths.joinToString("|||"))
                     navController.navigate("archive?paths=$encodedPaths&mode=$mode")
                 },
                 onNavigateToViewer = { path ->
@@ -82,7 +82,13 @@ fun AppNavigation(
             )
         }
         composable("search") {
-            SearchScreen(onNavigateBack = { navController.popBackStack() })
+            SearchScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToViewer = { path ->
+                    val encodedPath = android.net.Uri.encode(path)
+                    navController.navigate("viewer?path=$encodedPath")
+                }
+            )
         }
         composable(
             route = "archive?paths={paths}&mode={mode}",

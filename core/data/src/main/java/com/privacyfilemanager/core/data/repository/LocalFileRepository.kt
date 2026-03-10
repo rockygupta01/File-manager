@@ -64,7 +64,9 @@ class LocalFileRepository @Inject constructor() : FileRepository {
                 if (file.exists()) {
                     return@withContext Result.Error("File already exists: ${file.path}")
                 }
-                file.createNewFile()
+                if (!file.createNewFile()) {
+                    return@withContext Result.Error("Failed to create file: ${file.path}")
+                }
                 Result.Success(file.toFileItem())
             } catch (e: Exception) {
                 Result.Error("Failed to create file: ${e.message}", e)
@@ -78,7 +80,9 @@ class LocalFileRepository @Inject constructor() : FileRepository {
                 if (dir.exists()) {
                     return@withContext Result.Error("Directory already exists: ${dir.path}")
                 }
-                dir.mkdirs()
+                if (!dir.mkdirs()) {
+                    return@withContext Result.Error("Failed to create directory: ${dir.path}")
+                }
                 Result.Success(dir.toFileItem())
             } catch (e: Exception) {
                 Result.Error("Failed to create directory: ${e.message}", e)

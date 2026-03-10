@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,7 +48,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var appLockManager: AppLockManager
@@ -132,6 +132,29 @@ class MainActivity : ComponentActivity() {
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(Modifier.height(24.dp))
+
+                                val activity = androidx.compose.ui.platform.LocalContext.current as? FragmentActivity
+                                androidx.compose.runtime.LaunchedEffect(Unit) {
+                                    if (appLockManager.isBiometricEnabled && activity != null) {
+                                        val executor = androidx.core.content.ContextCompat.getMainExecutor(activity)
+                                        val prompt = androidx.biometric.BiometricPrompt(
+                                            activity,
+                                            executor,
+                                            object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+                                                override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
+                                                    isAppUnlocked = true
+                                                    errorMsg = null
+                                                }
+                                            }
+                                        )
+                                        prompt.authenticate(
+                                            androidx.biometric.BiometricPrompt.PromptInfo.Builder()
+                                                .setTitle("Unlock App")
+                                                .setNegativeButtonText("Use PIN")
+                                                .build()
+                                        )
+                                    }
+                                }
 
                                 if (appLockManager.isLockedOut()) {
                                     Text(

@@ -20,7 +20,7 @@ class ArchiveViewModel @Inject constructor(
 
     // Expecting "paths" argument (comma separated) and "mode" ("compress" or "extract")
     private val pathsString: String = savedStateHandle.get<String>("paths") ?: ""
-    private val paths: List<String> = if (pathsString.isNotEmpty()) pathsString.split(",") else emptyList()
+    private val paths: List<String> = if (pathsString.isNotEmpty()) pathsString.split("|||") else emptyList()
     val mode: String = savedStateHandle.get<String>("mode") ?: "compress"
 
     private val _uiState = MutableStateFlow(ArchiveUiState(paths = paths))

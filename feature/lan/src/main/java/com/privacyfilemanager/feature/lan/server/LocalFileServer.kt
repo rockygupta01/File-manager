@@ -17,9 +17,11 @@ class LocalFileServer(
         return when {
             session.method == Method.GET && uri.isEmpty() -> serveDirectory(rootDir, "/")
             session.method == Method.GET -> {
-                val file = File(rootDir, uri)
-                // BUG 1 FIX: Prevent path traversal by escaping the root directory
-                if (!file.canonicalPath.startsWith(rootDir.canonicalPath)) {
+                // BUG 1 FIX (v3): Prevent path traversal via prefix siblings by mandating exact match or separator
+                val file = java.io.File(rootDir, uri)
+                val rootPath = rootDir.canonicalPath
+                val targetPath = file.canonicalPath
+                if (targetPath != rootPath && !targetPath.startsWith("$rootPath${File.separator}")) {
                     return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Forbidden")
                 }
                 
@@ -50,7 +52,8 @@ class LocalFileServer(
         }
 
         dir.listFiles()?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() }))?.forEach { file ->
-            val displayName = if (file.isDirectory) "📁 ${file.name}/" else "📄 ${file.name}"
+            val htmlEncodedName = android.text.TextUtils.htmlEncode(file.name)
+            val displayName = if (file.isDirectory) "📁 $htmlEncodedName/" else "📄 $htmlEncodedName"
             val link = if (path == "/") "/${file.name}" else "$path/${file.name}"
             sb.append("<li><a href='${java.net.URLEncoder.encode(link, "UTF-8").replace("%2F", "/").replace("+", "%20")}'>$displayName</a>")
             if (file.isFile) sb.append(" <span style='color:#aaa;font-size:12px'>(${formatSize(file.length())})</span>")
