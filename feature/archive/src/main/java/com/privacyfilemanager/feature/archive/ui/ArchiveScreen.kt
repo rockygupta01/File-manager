@@ -1,5 +1,6 @@
 package com.privacyfilemanager.feature.archive.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -53,6 +54,29 @@ fun ArchiveScreen(
                 "Selected Files: ${uiState.paths.size}",
                 style = MaterialTheme.typography.titleMedium
             )
+
+            if (uiState.paths.isNotEmpty()) {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.small)
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(uiState.paths.size) { index ->
+                        val path = uiState.paths[index]
+                        val name = path.substringAfterLast("/")
+                        Text(
+                            text = "• $name",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
 
             if (isCompressMode) {
                 OutlinedTextField(

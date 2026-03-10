@@ -1,5 +1,20 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('fonts/inter.woff2') format('woff2');
+    font-weight: 400 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Material Symbols Outlined';
+    src: url('fonts/material-symbols-outlined.woff2') format('woff2');
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: block;
+}
+
 :root {
-    --bg-color: #f8f9fa;
     --sidebar-bg: #f1f3f4;
     --sidebar-hover: #e8eaed;
     --sidebar-active: #e2e8f0;

@@ -170,19 +170,37 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?, view
 }
 
 @Composable
-fun TextViewer(content: String) {
-    val scrollState = rememberScrollState()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = content,
-            fontFamily = FontFamily.Monospace,
-            style = MaterialTheme.typography.bodyMedium
-        )
+fun TextViewer(text: String) {
+    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+    val context = LocalContext.current
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        val scrollState = rememberScrollState()
+        ZoomableBox {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState),
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        // Floating Copy Button
+        FloatingActionButton(
+            onClick = {
+                clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(text))
+                android.widget.Toast.makeText(context, "Text copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ) {
+            Icon(Icons.Default.ContentCopy, contentDescription = "Copy all text")
+        }
     }
 }
 
@@ -252,13 +270,37 @@ fun PdfViewer(file: File) {
 
     if (pageCount > 0 && renderer != null) {
         var currentScale by remember { mutableFloatStateOf(1f) }
-        ZoomableBox(onScaleChanged = { currentScale = it }) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(pageCount) { index ->
-                    PdfPage(renderer!!, index, currentScale)
+        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            ZoomableBox(onScaleChanged = { currentScale = it }) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(pageCount) { index ->
+                        PdfPage(renderer!!, index, currentScale)
+                    }
                 }
+            }
+
+            // Floating Page Indicator
+            val firstVisiblePage = remember { derivedStateOf { listState.firstVisibleItemIndex + 1 } }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "${firstVisiblePage.value} / $pageCount",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     } else {

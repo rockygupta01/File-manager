@@ -189,11 +189,12 @@ fun FileManagerScreen(
                         val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
                         val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
                         if (isAtRoot) {
-                            Icon(
-                                Icons.Default.Home,
-                                contentDescription = "Home",
-                                modifier = Modifier.padding(start = 12.dp)
-                            )
+                            IconButton(onClick = {}) {
+                                Icon(
+                                    Icons.Default.Home,
+                                    contentDescription = "Home"
+                                )
+                            }
                         } else {
                             IconButton(onClick = { viewModel.navigateUp() }) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Navigate up")
