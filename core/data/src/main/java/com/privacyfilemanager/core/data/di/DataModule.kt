@@ -21,4 +21,8 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindStorageRepository(impl: LocalStorageRepository): StorageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMediaLibraryRepository(impl: com.privacyfilemanager.core.data.repository.MediaLibraryRepositoryImpl): com.privacyfilemanager.core.domain.repository.MediaLibraryRepository
 }
