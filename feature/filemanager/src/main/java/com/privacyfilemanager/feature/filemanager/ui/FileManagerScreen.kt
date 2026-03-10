@@ -703,6 +703,15 @@ private fun FileGridView(
                             )
                         }
                     }
+                    // Filename
+                    Text(
+                        text = file.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (file.isDirectory) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
                     // #4 Size + date subtitle under filename
                     if (!file.isDirectory) {
                         Text(
@@ -712,6 +721,9 @@ private fun FileGridView(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             modifier = Modifier.padding(horizontal = 8.dp).padding(bottom = 6.dp)
                         )
+                    } else {
+                        // For folders, optionally show child count or just spacing
+                        Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
             }
