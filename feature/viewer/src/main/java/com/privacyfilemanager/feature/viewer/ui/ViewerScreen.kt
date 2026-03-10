@@ -147,11 +147,7 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?, view
                 )
             }
         }
-        FileCategory.VIDEO -> {
-            ZoomableBox {
-                MediaPlayer(file, viewModel)
-            }
-        }
+        FileCategory.VIDEO -> AdvancedVideoPlayer(viewModel.getPlayer(file))
         FileCategory.AUDIO -> {
             MediaPlayer(file, viewModel)
         }

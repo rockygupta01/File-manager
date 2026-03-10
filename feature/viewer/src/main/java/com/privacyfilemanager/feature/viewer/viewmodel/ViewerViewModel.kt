@@ -21,7 +21,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 @HiltViewModel
 class ViewerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    @ApplicationContext private val appContext: Context
+    @ApplicationContext private val appContext: Context,
+    val exoPlayer: ExoPlayer
 ) : ViewModel() {
 
     private val pathString: String = savedStateHandle.get<String>("path") ?: ""
@@ -30,22 +31,22 @@ class ViewerViewModel @Inject constructor(
     val category: FileCategory = FileUtils.getFileCategory(file)
     val fileName: String = file.name
 
-    var exoPlayer: ExoPlayer? = null
-        private set
-
     fun getPlayer(fileToPlay: File): ExoPlayer {
-        return exoPlayer ?: ExoPlayer.Builder(appContext).build().apply {
-            setMediaItem(MediaItem.fromUri(fileToPlay.toURI().toString()))
-            prepare()
-            playWhenReady = true
-            exoPlayer = this
+        // Only set media item if playing a different file, or if idle
+        if (exoPlayer.currentMediaItem?.localConfiguration?.uri?.toString() != fileToPlay.toURI().toString()) {
+            exoPlayer.setMediaItem(MediaItem.fromUri(fileToPlay.toURI().toString()))
+            exoPlayer.prepare()
         }
+        exoPlayer.playWhenReady = true
+        return exoPlayer
     }
 
     override fun onCleared() {
         super.onCleared()
-        exoPlayer?.release()
-        exoPlayer = null
+        if (exoPlayer.currentMediaItem?.localConfiguration?.uri?.toString() == file.toURI().toString()) {
+            exoPlayer.stop()
+            exoPlayer.clearMediaItems()
+        }
     }
 
     private val _uiState = MutableStateFlow(ViewerUiState())
