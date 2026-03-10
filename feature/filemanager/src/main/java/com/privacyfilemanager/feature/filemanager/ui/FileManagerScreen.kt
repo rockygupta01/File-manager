@@ -684,7 +684,10 @@ private fun FileGridView(
                                     )
                                 }
                             } else {
-                                SubcomposeAsyncImageContent()
+                                SubcomposeAsyncImageContent(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
                             }
                         }
                     } else {
