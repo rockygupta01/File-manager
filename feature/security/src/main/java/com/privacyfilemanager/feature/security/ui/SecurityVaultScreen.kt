@@ -1,5 +1,6 @@
 package com.privacyfilemanager.feature.security.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +27,8 @@ fun SecurityVaultScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showPinDialog by remember { mutableStateOf(false) }
+    var backupActionTarget by remember { mutableStateOf<String?>(null) }
+    var showRestoreConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadBackups()
@@ -133,13 +136,13 @@ fun SecurityVaultScreen(
                 )
             }
 
-            // ── Secure Vault ────────────────────────────────────────────────
+            // ── About Security ────────────────────────────────────────────
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Secure Vault",
+                    text = "About Security",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -160,11 +163,18 @@ fun SecurityVaultScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(40.dp).padding(end = 12.dp)
                         )
-                        Text(
-                            "Files can be encrypted using AES-256-GCM and stored securely on the device. " +
-                                "Encryption is managed via the Android Keystore (hardware-backed).",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Column {
+                            Text(
+                                "Your data is protected by AES-256-GCM encryption backed by Android Keystore (hardware-level).",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "File encryption features coming soon.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }
@@ -218,9 +228,24 @@ fun SecurityVaultScreen(
                 }
                 items(uiState.availableBackups) { name ->
                     ListItem(
+                        modifier = Modifier.clickable { backupActionTarget = name },
                         headlineContent = { Text(name, style = MaterialTheme.typography.bodySmall) },
+                        supportingContent = { Text("Tap to restore or delete", style = MaterialTheme.typography.labelSmall) },
                         leadingContent = {
                             Icon(Icons.Default.FolderZip, null, tint = MaterialTheme.colorScheme.primary)
+                        },
+                        trailingContent = {
+                            Row {
+                                IconButton(onClick = {
+                                    backupActionTarget = name
+                                    showRestoreConfirm = true
+                                }) {
+                                    Icon(Icons.Default.Restore, "Restore", tint = MaterialTheme.colorScheme.primary)
+                                }
+                                IconButton(onClick = { viewModel.deleteBackup(name) }) {
+                                    Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
                         }
                     )
                 }
@@ -228,30 +253,68 @@ fun SecurityVaultScreen(
         }
     }
 
+    // ── Backup action dialogs ────────────────────────────────────────────
+    if (showRestoreConfirm && backupActionTarget != null) {
+        AlertDialog(
+            onDismissRequest = { showRestoreConfirm = false; backupActionTarget = null },
+            icon = { Icon(Icons.Default.Restore, null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text("Restore Backup?") },
+            text = { Text("This will replace current app data with:\n${backupActionTarget}\n\nRestart the app after restore to apply changes.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.restoreBackup(backupActionTarget!!)
+                    showRestoreConfirm = false
+                    backupActionTarget = null
+                }) { Text("Restore") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestoreConfirm = false; backupActionTarget = null }) { Text("Cancel") }
+            }
+        )
+    }
+
     // ── PIN set dialog ─────────────────────────────────────────────────────
     if (showPinDialog) {
         var pin by remember { mutableStateOf("") }
+        var confirmPin by remember { mutableStateOf("") }
+        val pinsMatch = pin == confirmPin && pin.length >= 4
         AlertDialog(
             onDismissRequest = { showPinDialog = false },
             title = { Text("Set PIN") },
             text = {
-                OutlinedTextField(
-                    value = pin,
-                    onValueChange = { pin = it },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true,
-                    label = { Text("Enter PIN (min. 4 digits)") }
-                )
+                Column {
+                    OutlinedTextField(
+                        value = pin,
+                        onValueChange = { pin = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        label = { Text("Enter PIN (min. 4 digits)") }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = confirmPin,
+                        onValueChange = { confirmPin = it },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        label = { Text("Confirm PIN") },
+                        isError = confirmPin.isNotEmpty() && pin != confirmPin,
+                        supportingText = {
+                            if (confirmPin.isNotEmpty() && pin != confirmPin) {
+                                Text("PINs don't match")
+                            }
+                        }
+                    )
+                }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (pin.length >= 4) {
+                        if (pinsMatch) {
                             viewModel.setPin(pin)
                             showPinDialog = false
                         }
                     },
-                    enabled = pin.length >= 4
+                    enabled = pinsMatch
                 ) {
                     Text("Save")
                 }

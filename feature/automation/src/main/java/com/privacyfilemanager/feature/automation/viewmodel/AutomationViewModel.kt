@@ -1,6 +1,7 @@
 package com.privacyfilemanager.feature.automation.viewmodel
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.work.*
@@ -38,15 +39,28 @@ class AutomationViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences("automation_prefs", Context.MODE_PRIVATE)
+
     private val _uiState = MutableStateFlow(AutomationUiState())
     val uiState: StateFlow<AutomationUiState> = _uiState.asStateFlow()
 
     private val workManager = WorkManager.getInstance(context)
 
+    init {
+        // Load persisted rule enabled states
+        val restoredRules = _uiState.value.rules.map { rule ->
+            rule.copy(isEnabled = prefs.getBoolean("rule_enabled_${rule.id}", false))
+        }
+        _uiState.value = _uiState.value.copy(rules = restoredRules)
+    }
+
     fun toggleRule(ruleId: String) {
         val updated = _uiState.value.rules.map { rule ->
             if (rule.id == ruleId) {
                 val newRule = rule.copy(isEnabled = !rule.isEnabled)
+                // Persist the new state
+                prefs.edit().putBoolean("rule_enabled_${rule.id}", newRule.isEnabled).apply()
                 if (newRule.isEnabled) scheduleRule(newRule) else cancelRule(newRule.id)
                 newRule
             } else rule

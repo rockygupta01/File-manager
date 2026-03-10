@@ -120,4 +120,8 @@ class DevToolsViewModel @Inject constructor(
     fun setTab(tab: Int) {
         _uiState.value = _uiState.value.copy(activeTab = tab)
     }
+
+    fun clearTerminal() {
+        _uiState.value = _uiState.value.copy(terminalHistory = emptyList())
+    }
 }

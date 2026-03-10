@@ -114,6 +114,27 @@ fun FileManagerScreen(
                         }) {
                             Icon(Icons.Default.FolderZip, "Compress")
                         }
+                        // Share selected files
+                        IconButton(onClick = {
+                            val uris = uiState.selectedFiles.mapNotNull { path ->
+                                try {
+                                    androidx.core.content.FileProvider.getUriForFile(
+                                        context, "${context.packageName}.fileprovider", java.io.File(path)
+                                    )
+                                } catch (_: Exception) { null }
+                            }
+                            if (uris.isNotEmpty()) {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SEND_MULTIPLE).apply {
+                                    type = "*/*"
+                                    putParcelableArrayListExtra(android.content.Intent.EXTRA_STREAM, ArrayList(uris))
+                                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                context.startActivity(android.content.Intent.createChooser(intent, "Share files"))
+                            }
+                            viewModel.clearSelection()
+                        }) {
+                            Icon(Icons.Default.Share, "Share")
+                        }
                         // Rename — only available for single selection
                         if (uiState.selectedFiles.size == 1) {
                             IconButton(onClick = {

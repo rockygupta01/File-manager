@@ -76,4 +76,8 @@ class RootViewModel @Inject constructor() : ViewModel() {
             _uiState.value = _uiState.value.copy(directoryListing = result.output)
         }
     }
+
+    fun clearTerminal() {
+        _uiState.value = _uiState.value.copy(terminalHistory = emptyList())
+    }
 }

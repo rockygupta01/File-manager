@@ -1,12 +1,12 @@
 package com.privacyfilemanager.feature.storage.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,11 +22,13 @@ import com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerViewModel
 @Composable
 fun StorageAnalyzerScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToViewer: (String) -> Unit = {},
     viewModel: StorageAnalyzerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Overview", "Large Files", "Duplicates", "Junk")
+    var deleteTarget by remember { mutableStateOf<FileItem?>(null) }
 
     Scaffold(
         topBar = {
@@ -35,6 +37,11 @@ fun StorageAnalyzerScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.refreshAll() }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
             )
@@ -58,12 +65,47 @@ fun StorageAnalyzerScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 when (selectedTabIndex) {
                     0 -> OverviewTab(uiState)
-                    1 -> LargeFilesTab(uiState)
-                    2 -> DuplicatesTab(uiState)
-                    3 -> JunkTab(uiState)
+                    1 -> LargeFilesTab(
+                        uiState = uiState,
+                        onFileClick = { onNavigateToViewer(it.path) },
+                        onDeleteClick = { deleteTarget = it }
+                    )
+                    2 -> DuplicatesTab(
+                        uiState = uiState,
+                        onFileClick = { onNavigateToViewer(it.path) },
+                        onDeleteClick = { deleteTarget = it },
+                        onDeleteGroupDuplicates = { viewModel.deleteDuplicatesKeepFirst(it) }
+                    )
+                    3 -> JunkTab(
+                        uiState = uiState,
+                        onDeleteClick = { deleteTarget = it },
+                        onCleanAll = { viewModel.deleteAllJunk() }
+                    )
                 }
             }
         }
+    }
+
+    // Delete confirmation dialog
+    deleteTarget?.let { file ->
+        AlertDialog(
+            onDismissRequest = { deleteTarget = null },
+            icon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("Delete file?") },
+            text = { Text("${file.name}\n${FileUtils.formatFileSize(file.size)}\n\nThis cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteFile(file)
+                        deleteTarget = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteTarget = null }) { Text("Cancel") }
+            }
+        )
     }
 }
 
@@ -124,7 +166,11 @@ fun OverviewTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.Storag
 }
 
 @Composable
-fun LargeFilesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState) {
+fun LargeFilesTab(
+    uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState,
+    onFileClick: (FileItem) -> Unit,
+    onDeleteClick: (FileItem) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (uiState.isLargeFilesLoading) {
             CircularProgressIndicator()
@@ -133,7 +179,11 @@ fun LargeFilesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.Stor
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(uiState.largeFiles) { file ->
-                    FileListItem(file = file)
+                    FileListItem(
+                        file = file,
+                        onClick = { onFileClick(file) },
+                        onDelete = { onDeleteClick(file) }
+                    )
                 }
             }
         }
@@ -141,7 +191,12 @@ fun LargeFilesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.Stor
 }
 
 @Composable
-fun DuplicatesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState) {
+fun DuplicatesTab(
+    uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState,
+    onFileClick: (FileItem) -> Unit,
+    onDeleteClick: (FileItem) -> Unit,
+    onDeleteGroupDuplicates: (Int) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (uiState.isDuplicatesLoading) {
             CircularProgressIndicator()
@@ -151,15 +206,30 @@ fun DuplicatesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.Stor
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 uiState.duplicateFiles.forEachIndexed { index, group ->
                     item {
-                        Text(
-                            text = "Group ${index + 1} (${FileUtils.formatFileSize(group.first().size)} each)",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Group ${index + 1} (${FileUtils.formatFileSize(group.first().size)} each)",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TextButton(
+                                onClick = { onDeleteGroupDuplicates(index) },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Text("Keep 1st, delete rest")
+                            }
+                        }
                     }
                     items(group) { file ->
-                        FileListItem(file = file)
+                        FileListItem(
+                            file = file,
+                            onClick = { onFileClick(file) },
+                            onDelete = { onDeleteClick(file) }
+                        )
                     }
                     item { HorizontalDivider() }
                 }
@@ -169,7 +239,11 @@ fun DuplicatesTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.Stor
 }
 
 @Composable
-fun JunkTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState) {
+fun JunkTab(
+    uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAnalyzerUiState,
+    onDeleteClick: (FileItem) -> Unit,
+    onCleanAll: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (uiState.isJunkLoading) {
             CircularProgressIndicator()
@@ -177,8 +251,22 @@ fun JunkTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAna
             Text("No junk files found")
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    Button(
+                        onClick = onCleanAll,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Icon(Icons.Default.CleaningServices, null, modifier = Modifier.padding(end = 8.dp))
+                        Text("Clean All Junk (${uiState.junkFiles.size} files)")
+                    }
+                }
                 items(uiState.junkFiles) { file ->
-                    FileListItem(file = file)
+                    FileListItem(
+                        file = file,
+                        onClick = {},
+                        onDelete = { onDeleteClick(file) }
+                    )
                 }
             }
         }
@@ -186,8 +274,13 @@ fun JunkTab(uiState: com.privacyfilemanager.feature.storage.viewmodel.StorageAna
 }
 
 @Composable
-fun FileListItem(file: FileItem) {
+fun FileListItem(
+    file: FileItem,
+    onClick: () -> Unit = {},
+    onDelete: () -> Unit = {}
+) {
     ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
         headlineContent = { Text(file.name) },
         supportingContent = { Text("${FileUtils.formatFileSize(file.size)} • ${file.path}") },
         leadingContent = {
@@ -196,6 +289,15 @@ fun FileListItem(file: FileItem) {
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
+        },
+        trailingContent = {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     )
 }

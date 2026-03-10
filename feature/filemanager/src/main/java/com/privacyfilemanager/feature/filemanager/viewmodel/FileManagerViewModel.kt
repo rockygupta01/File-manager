@@ -1,6 +1,7 @@
 package com.privacyfilemanager.feature.filemanager.viewmodel
 
 import android.os.Environment
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.privacyfilemanager.core.common.util.Result
@@ -17,6 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FileManagerViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val fileRepository: FileRepository,
     private val bookmarkDao: BookmarkDao,
     private val recentFileDao: RecentFileDao
@@ -35,7 +37,13 @@ class FileManagerViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        navigateTo(Environment.getExternalStorageDirectory().absolutePath)
+        val startPath = savedStateHandle.get<String>("startPath")
+        val initialPath = if (!startPath.isNullOrBlank() && java.io.File(startPath).isDirectory) {
+            startPath
+        } else {
+            Environment.getExternalStorageDirectory().absolutePath
+        }
+        navigateTo(initialPath)
     }
 
     fun navigateTo(path: String) {

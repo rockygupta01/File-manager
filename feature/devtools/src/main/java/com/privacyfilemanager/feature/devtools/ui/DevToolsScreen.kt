@@ -1,5 +1,9 @@
 package com.privacyfilemanager.feature.devtools.ui
 
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +22,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -41,6 +48,13 @@ fun DevToolsScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if (uiState.activeTab == 0 && uiState.terminalHistory.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.clearTerminal() }) {
+                            Icon(Icons.Default.DeleteSweep, contentDescription = "Clear terminal")
+                        }
                     }
                 }
             )
@@ -128,6 +142,30 @@ private fun OcrTab(
     viewModel: DevToolsViewModel
 ) {
     var pathInput by remember { mutableStateOf(uiState.imagePath) }
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+
+    // File picker for images
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            // Try to resolve to a real file path via ContentResolver
+            val resolvedPath = try {
+                val cursor = context.contentResolver.query(it, null, null, null, null)
+                cursor?.use { c ->
+                    if (c.moveToFirst()) {
+                        val dataIdx = c.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
+                        if (dataIdx >= 0) c.getString(dataIdx) else null
+                    } else null
+                }
+            } catch (_: Exception) { null }
+
+            val finalPath = resolvedPath ?: it.toString()
+            pathInput = finalPath
+            viewModel.setImagePath(finalPath)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -152,6 +190,11 @@ private fun OcrTab(
             label = { Text("Image file path") },
             placeholder = { Text("/storage/emulated/0/Pictures/photo.jpg") },
             leadingIcon = { Icon(Icons.Default.Image, null) },
+            trailingIcon = {
+                IconButton(onClick = { imagePickerLauncher.launch("image/*") }) {
+                    Icon(Icons.Default.FolderOpen, contentDescription = "Pick image")
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -184,8 +227,18 @@ private fun OcrTab(
         if (uiState.ocrText.isNotBlank()) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Extracted Text", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Extracted Text", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                        IconButton(onClick = {
+                            clipboardManager.setText(AnnotatedString(uiState.ocrText))
+                        }) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = "Copy text")
+                        }
+                    }
                     Text(uiState.ocrText, style = MaterialTheme.typography.bodyMedium)
                 }
             }

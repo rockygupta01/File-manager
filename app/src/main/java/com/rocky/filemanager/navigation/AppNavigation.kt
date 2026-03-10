@@ -49,7 +49,12 @@ fun AppNavigation(
         popEnterTransition = { popEnter },
         popExitTransition = { popExit }
     ) {
-        composable("filemanager") {
+        composable(
+            route = "filemanager?startPath={startPath}",
+            arguments = listOf(
+                navArgument("startPath") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) {
             FileManagerScreen(
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
@@ -72,7 +77,12 @@ fun AppNavigation(
             )
         }
         composable("storage") {
-            StorageAnalyzerScreen(onNavigateBack = { navController.popBackStack() })
+            StorageAnalyzerScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToViewer = { path ->
+                    navController.navigate("viewer/${java.net.URLEncoder.encode(path, "UTF-8")}")
+                }
+            )
         }
         composable("security") {
             SecurityVaultScreen(
@@ -87,6 +97,15 @@ fun AppNavigation(
                 onNavigateToViewer = { path ->
                     val encodedPath = android.net.Uri.encode(path)
                     navController.navigate("viewer?path=$encodedPath")
+                },
+                onNavigateToDirectory = { path ->
+                    // Navigate back to file manager at the specified directory
+                    navController.popBackStack("filemanager", false)
+                    // Post the path to a shared navigation channel
+                    val encodedPath = android.net.Uri.encode(path)
+                    navController.navigate("filemanager?startPath=$encodedPath") {
+                        popUpTo("filemanager") { inclusive = true }
+                    }
                 }
             )
         }

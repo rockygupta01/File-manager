@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
@@ -132,6 +133,59 @@ class SecurityVaultViewModel @Inject constructor(
         }
     }
 
+    /** Restore a backup by extracting DB files from the ZIP. */
+    fun restoreBackup(backupName: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRestoreInProgress = true, backupMessage = null)
+            withContext(Dispatchers.IO) {
+                try {
+                    val backupFile = File(File(context.filesDir, "backups"), backupName)
+                    if (!backupFile.exists()) throw Exception("Backup file not found")
+
+                    val dbDir = context.getDatabasePath("privacy_file_manager.db").parentFile!!
+
+                    ZipInputStream(backupFile.inputStream().buffered()).use { zip ->
+                        var entry = zip.nextEntry
+                        while (entry != null) {
+                            if (entry.name.startsWith("db/")) {
+                                val destFile = File(dbDir, entry.name.removePrefix("db/"))
+                                destFile.outputStream().use { out -> zip.copyTo(out) }
+                            }
+                            zip.closeEntry()
+                            entry = zip.nextEntry
+                        }
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            isRestoreInProgress = false,
+                            backupMessage = "Backup restored: $backupName. Restart app to apply."
+                        )
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        _uiState.value = _uiState.value.copy(
+                            isRestoreInProgress = false,
+                            backupMessage = "Restore failed: ${e.localizedMessage}"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /** Delete a specific backup. */
+    fun deleteBackup(backupName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val backupFile = File(File(context.filesDir, "backups"), backupName)
+            backupFile.delete()
+            loadBackups()
+            withContext(Dispatchers.Main) {
+                _uiState.value = _uiState.value.copy(backupMessage = "Deleted: $backupName")
+            }
+        }
+    }
+
     fun clearBackupMessage() {
         _uiState.value = _uiState.value.copy(backupMessage = null)
     }
@@ -141,6 +195,7 @@ data class SecurityVaultUiState(
     val isLockEnabled: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val isBackupInProgress: Boolean = false,
+    val isRestoreInProgress: Boolean = false,
     val backupMessage: String? = null,
     val availableBackups: List<String> = emptyList()
 )

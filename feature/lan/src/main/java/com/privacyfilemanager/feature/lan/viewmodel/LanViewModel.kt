@@ -50,9 +50,15 @@ class LanViewModel @Inject constructor(
 
             val port = _uiState.value.port
             val rootDir = Environment.getExternalStorageDirectory()
-            server = LocalFileServer(port, rootDir)
+            server = LocalFileServer(port, rootDir, context)
             server!!.start()
-            val ip = getLocalIpAddress() ?: "localhost"
+            val ip = getLocalIpAddress()
+            if (ip == null) {
+                _uiState.value = _uiState.value.copy(error = "No active Wi-Fi or LAN connection found.")
+                server!!.stop()
+                server = null
+                return
+            }
             _uiState.value = _uiState.value.copy(
                 isRunning = true,
                 serverUrl = "http://$ip:$port",
@@ -71,7 +77,22 @@ class LanViewModel @Inject constructor(
 
     private fun getLocalIpAddress(): String? {
         return try {
-            NetworkInterface.getNetworkInterfaces().toList()
+            val interfaces = NetworkInterface.getNetworkInterfaces().toList()
+            
+            // Priority 1: wlan (Wi-Fi), eth (Ethernet), ap (Hotspot)
+            val primaryIp = interfaces
+                .filter { it.isUp && !it.isLoopback }
+                .filter { it.name.startsWith("wlan") || it.name.startsWith("eth") || it.name.startsWith("ap") }
+                .flatMap { it.inetAddresses.toList() }
+                .firstOrNull { !it.isLoopbackAddress && it is Inet4Address }
+                ?.hostAddress
+                
+            if (primaryIp != null) return primaryIp
+            
+            // Priority 2: Fallback to any valid non-cellular/non-VPN IPv4
+            interfaces
+                .filter { it.isUp && !it.isLoopback }
+                .filter { !it.name.startsWith("rmnet") && !it.name.startsWith("tun") && !it.name.startsWith("ppp") }
                 .flatMap { it.inetAddresses.toList() }
                 .firstOrNull { !it.isLoopbackAddress && it is Inet4Address }
                 ?.hostAddress
