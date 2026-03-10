@@ -156,7 +156,7 @@ fun ContentViewer(category: FileCategory, file: File, textContent: String?, view
                 } catch (e: Exception) { e.printStackTrace() }
             }
             if (category == FileCategory.VIDEO) {
-                AdvancedVideoPlayer(viewModel.getPlayer(file))
+                AdvancedVideoPlayer(viewModel.getPlayer(file), fileSize = file.length())
             } else {
                 AudioPlayerScreen(file = file, exoPlayer = viewModel.getPlayer(file))
             }

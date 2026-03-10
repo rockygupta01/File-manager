@@ -20,6 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.ScreenRotation
+import androidx.compose.material.icons.filled.Headset
+import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -30,7 +35,8 @@ import androidx.media3.ui.PlayerView
 @Composable
 fun AdvancedVideoPlayer(
     exoPlayer: ExoPlayer,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fileSize: Long? = null
 ) {
     val context = LocalContext.current
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -62,6 +68,35 @@ fun AdvancedVideoPlayer(
     }
     
     var showMetadataOverlay by remember { mutableStateOf(false) }
+    var resizeMode by remember { mutableStateOf(androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var isLandscape by remember { mutableStateOf(false) }
+    var playInBackground by remember { mutableStateOf(false) }
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner, playInBackground) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                val act = context.findActivity()
+                val isEnteringPip = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && act?.isInPictureInPictureMode == true
+                if (!playInBackground && !isEnteringPip && (act == null || !act.isChangingConfigurations)) {
+                    exoPlayer.pause()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(isLandscape) {
+        val act = context.findActivity() ?: return@LaunchedEffect
+        act.requestedOrientation = if (isLandscape) {
+            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        } else {
+            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
@@ -72,11 +107,13 @@ fun AdvancedVideoPlayer(
                     setShowSubtitleButton(true)
                     setShowNextButton(false) 
                     setShowPreviousButton(false)
+                    setShowFastForwardButton(true)
+                    setShowRewindButton(true)
                     setKeepScreenOn(true)
                 }
             },
             update = { playerView ->
-                playerView.resizeMode = playerView.resizeMode // Maintain dynamic resize compatibility
+                playerView.resizeMode = resizeMode
             },
             modifier = Modifier.fillMaxSize()
                 .pointerInput(Unit) {
@@ -137,16 +174,79 @@ fun AdvancedVideoPlayer(
                 }
         )
         
-        // Metadata Info Button
-        androidx.compose.material3.IconButton(
-            onClick = { showMetadataOverlay = !showMetadataOverlay },
-            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+        // Top right controls
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
         ) {
-            androidx.compose.material3.Icon(
-                Icons.Default.Info,
-                contentDescription = "Metadata",
-                tint = Color.White
-            )
+            // Audio Track Button
+            androidx.compose.material3.IconButton(
+                onClick = {
+                    val activity = context.findActivity() ?: return@IconButton
+                    androidx.media3.ui.TrackSelectionDialogBuilder(
+                        activity,
+                        "Select Audio Track",
+                        exoPlayer,
+                        androidx.media3.common.C.TRACK_TYPE_AUDIO
+                    ).build().show()
+                }
+            ) {
+                androidx.compose.material3.Icon(
+                    Icons.Default.Audiotrack,
+                    contentDescription = "Audio Tracks",
+                    tint = Color.White
+                )
+            }
+            
+            // Aspect Ratio Button
+            androidx.compose.material3.IconButton(
+                onClick = {
+                    resizeMode = when (resizeMode) {
+                        androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT -> androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL
+                        androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL -> androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                        else -> androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    }
+                }
+            ) {
+                androidx.compose.material3.Icon(
+                    Icons.Default.AspectRatio,
+                    contentDescription = "Aspect Ratio",
+                    tint = Color.White
+                )
+            }
+            
+            // Screen Rotate Button
+            androidx.compose.material3.IconButton(
+                onClick = { isLandscape = !isLandscape }
+            ) {
+                androidx.compose.material3.Icon(
+                    Icons.Default.ScreenRotation,
+                    contentDescription = "Rotate",
+                    tint = Color.White
+                )
+            }
+            
+            // Background Playback Button
+            androidx.compose.material3.IconButton(
+                onClick = { playInBackground = !playInBackground }
+            ) {
+                androidx.compose.material3.Icon(
+                    if (playInBackground) Icons.Default.Headset else Icons.Default.HeadsetOff,
+                    contentDescription = "Background Playback",
+                    tint = if (playInBackground) Color.Green else Color.White
+                )
+            }
+            
+            // Info Button
+            androidx.compose.material3.IconButton(
+                onClick = { showMetadataOverlay = !showMetadataOverlay }
+            ) {
+                androidx.compose.material3.Icon(
+                    Icons.Default.Info,
+                    contentDescription = "Metadata",
+                    tint = Color.White
+                )
+            }
         }
 
         // The Metadata Overlay Display
@@ -154,6 +254,13 @@ fun AdvancedVideoPlayer(
             val format = exoPlayer.videoFormat
             val resolution = if (format != null && format.width > 0 && format.height > 0) "${format.width}x${format.height}" else "Unknown"
             val codec = format?.sampleMimeType ?: "Unknown Codec"
+            
+            val durationMs = exoPlayer.duration.coerceAtLeast(0)
+            val durationStr = if (durationMs > 0) {
+                String.format("%02d:%02d:%02d", durationMs / 3600000, (durationMs / 60000) % 60, (durationMs / 1000) % 60)
+            } else "Unknown"
+            
+            val fileSizeStr = fileSize?.let { android.text.format.Formatter.formatFileSize(context, it) } ?: "Unknown Size"
             
             Box(
                 modifier = Modifier
@@ -168,6 +275,8 @@ fun AdvancedVideoPlayer(
                     if (format?.frameRate ?: 0f > 0f) {
                         androidx.compose.material3.Text("FPS: ${format?.frameRate}", color = Color.White, style = androidx.compose.material3.MaterialTheme.typography.labelMedium)
                     }
+                    androidx.compose.material3.Text("Duration: $durationStr", color = Color.White, style = androidx.compose.material3.MaterialTheme.typography.labelMedium)
+                    androidx.compose.material3.Text("Size: $fileSizeStr", color = Color.White, style = androidx.compose.material3.MaterialTheme.typography.labelMedium)
                 }
             }
         }
