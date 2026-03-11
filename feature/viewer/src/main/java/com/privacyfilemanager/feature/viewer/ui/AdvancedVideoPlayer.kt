@@ -98,6 +98,15 @@ fun AdvancedVideoPlayer(
         }
     }
 
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            val act = context.findActivity()
+            if (act != null && act.requestedOrientation != android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                act.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
             factory = { ctx ->
@@ -146,9 +155,12 @@ fun AdvancedVideoPlayer(
 
                             if (isAdjustingProgress) {
                                 // Assume 1px drag = 50ms seek (adjust multiplier as needed)
-                                val seekDelta = (deltaX * 50).toLong()
-                                val newPos = (exoPlayer.currentPosition + seekDelta).coerceIn(0, exoPlayer.duration)
-                                exoPlayer.seekTo(newPos)
+                                val duration = exoPlayer.duration
+                                if (duration > 0) {
+                                    val seekDelta = (deltaX * 50).toLong()
+                                    val newPos = (exoPlayer.currentPosition + seekDelta).coerceIn(0, duration)
+                                    exoPlayer.seekTo(newPos)
+                                }
                             } else if (isAdjustingVolume) {
                                 // Decrease volume when swiping down (positive delta), increase up
                                 val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)

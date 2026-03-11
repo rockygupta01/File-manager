@@ -42,7 +42,7 @@ class ViewerViewModel @Inject constructor(
                 val parentDir = fileToPlay.parentFile
                 val baseName = fileToPlay.nameWithoutExtension
                 if (parentDir != null && parentDir.isDirectory) {
-                    val supportedSubExtensions = listOf("srt", "vtt", "ass", "sub")
+                    val supportedSubExtensions = listOf("srt", "vtt", "ass", "ssa")
                     val subtitleFile = parentDir.listFiles()?.firstOrNull { 
                         it.isFile && it.nameWithoutExtension.equals(baseName, ignoreCase = true) &&
                         it.extension.lowercase() in supportedSubExtensions
@@ -76,9 +76,12 @@ class ViewerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        // Only stop and clear if we are not actively playing (e.g., normal exit, not PiP/background)
         if (exoPlayer.currentMediaItem?.localConfiguration?.uri?.toString() == file.toURI().toString()) {
-            exoPlayer.stop()
-            exoPlayer.clearMediaItems()
+            if (!exoPlayer.playWhenReady) {
+                exoPlayer.stop()
+                exoPlayer.clearMediaItems()
+            }
         }
     }
 
