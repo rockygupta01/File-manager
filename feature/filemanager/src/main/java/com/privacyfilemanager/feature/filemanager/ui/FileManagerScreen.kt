@@ -3,6 +3,8 @@ package com.privacyfilemanager.feature.filemanager.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.SubcomposeAsyncImage
@@ -58,7 +60,8 @@ fun FileManagerScreen(
     onNavigateToAutomation: () -> Unit = {},
     onNavigateToLan: () -> Unit = {},
     onNavigateToRoot: () -> Unit = {},
-    onNavigateToDevTools: () -> Unit = {}
+    onNavigateToDevTools: () -> Unit = {},
+    onNavigateToTrash: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val clipboard by viewModel.clipboard.collectAsStateWithLifecycle()
@@ -67,12 +70,28 @@ fun FileManagerScreen(
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var previewFile by remember { mutableStateOf<com.privacyfilemanager.core.domain.model.FileItem?>(null) } // #23
     var renameTarget by remember { mutableStateOf<String?>(null) } // path of file to rename
+    val snackbarHostState = remember { SnackbarHostState() }
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
     val rootPath = android.os.Environment.getExternalStorageDirectory().absolutePath
     val isAtRoot = uiState.currentPath == rootPath || uiState.currentPath.isEmpty()
 
     val fileToOpen = uiState.fileToOpen
     val context = LocalContext.current
+
+    androidx.compose.runtime.LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { msg ->
+            val result = snackbarHostState.showSnackbar(
+                message = msg,
+                actionLabel = if (uiState.undoTrashIds.isNotEmpty()) "Undo" else null,
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed && uiState.undoTrashIds.isNotEmpty()) {
+                viewModel.undoTrash()
+            }
+            viewModel.dismissSnackbar()
+        }
+    }
+
     androidx.compose.runtime.LaunchedEffect(fileToOpen) {
         fileToOpen?.let { file ->
             try {
@@ -97,6 +116,7 @@ fun FileManagerScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             if (uiState.selectedFiles.isNotEmpty()) {
                 // Selection mode top bar
@@ -304,6 +324,11 @@ fun FileManagerScreen(
                                     text = { Text("Storage Analyzer") },
                                     leadingIcon = { Icon(Icons.Default.PieChart, null) },
                                     onClick = { showMoreMenu = false; onNavigateToStorage() }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Recycle Bin") },
+                                    leadingIcon = { Icon(Icons.Default.Delete, null) },
+                                    onClick = { showMoreMenu = false; onNavigateToTrash() }
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Security & Vault") },
@@ -534,13 +559,13 @@ fun FileManagerScreen(
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
             icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text("Delete ${uiState.selectedFiles.size} item${if (uiState.selectedFiles.size > 1) "s" else ""}?") },
-            text = { Text("This action cannot be undone. Selected files will be permanently deleted from your device.") },
+            title = { Text("Move ${uiState.selectedFiles.size} item${if (uiState.selectedFiles.size > 1) "s" else ""} to Trash?") },
+            text = { Text("Selected items will be moved to the Recycle Bin and can be restored later.") },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.deleteSelected(); showDeleteConfirmDialog = false },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete") }
+                ) { Text("Move to Trash") }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) { Text("Cancel") }
@@ -639,13 +664,59 @@ private fun FileListView(
                     )
                 },
                 leadingContent = {
-                    Icon(
-                        imageVector = getFileIcon(file.category),
-                        contentDescription = null,
-                        tint = if (isSelected) MaterialTheme.colorScheme.primary
-                        else getIconTint(file.category),
-                        modifier = Modifier.size(40.dp)
-                    )
+                    if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
+                        val context = LocalContext.current
+                        val imageRequest = remember(file.path) {
+                            ImageRequest.Builder(context)
+                                .data(java.io.File(file.path))
+                                .size(100, 100) // Smaller size for list view
+                                .build()
+                        }
+                        SubcomposeAsyncImage(
+                            model = imageRequest,
+                            contentDescription = file.name,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                        ) {
+                            val state = painter.state
+                            if (state.javaClass.simpleName == "Loading") {
+                                Box(modifier = Modifier.fillMaxSize().background(shimmerBrush()))
+                            } else if (state.javaClass.simpleName == "Error") {
+                                Box(
+                                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = getFileIcon(file.category),
+                                        contentDescription = null,
+                                        tint = getIconTint(file.category),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            } else {
+                                SubcomposeAsyncImageContent(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    } else if (file.category == FileCategory.PDF) {
+                        PdfThumbnail(
+                            file = file,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                        )
+                    } else {
+                        Icon(
+                            imageVector = getFileIcon(file.category),
+                            contentDescription = null,
+                            tint = if (isSelected) MaterialTheme.colorScheme.primary
+                            else getIconTint(file.category),
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
                 },
                 trailingContent = {
                     if (isSelected) {
@@ -718,9 +789,7 @@ private fun FileGridView(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Show real thumbnail for images, videos, and PDFs
-                    if (file.category == FileCategory.IMAGE ||
-                        file.category == FileCategory.VIDEO ||
-                        file.category == FileCategory.PDF) {
+                    if (file.category == FileCategory.IMAGE || file.category == FileCategory.VIDEO) {
                         val context = LocalContext.current
                         val imageRequest = remember(file.path) {
                             ImageRequest.Builder(context)
@@ -760,6 +829,14 @@ private fun FileGridView(
                                 )
                             }
                         }
+                    } else if (file.category == FileCategory.PDF) {
+                        PdfThumbnail(
+                            file = file,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .clip(MaterialTheme.shapes.medium)
+                        )
                     } else {
                         Box(
                             modifier = Modifier
@@ -930,3 +1007,81 @@ private fun RenameDialog(
     )
 }
 
+@Composable
+fun PdfThumbnail(
+    file: FileItem,
+    modifier: Modifier = Modifier
+) {
+    var bitmap by remember(file.path) { mutableStateOf<android.graphics.Bitmap?>(null) }
+    var loadError by remember(file.path) { mutableStateOf(false) }
+
+    LaunchedEffect(file.path) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            var fileDescriptor: android.os.ParcelFileDescriptor? = null
+            var pdfRenderer: android.graphics.pdf.PdfRenderer? = null
+            var page: android.graphics.pdf.PdfRenderer.Page? = null
+            try {
+                fileDescriptor = android.os.ParcelFileDescriptor.open(
+                    java.io.File(file.path),
+                    android.os.ParcelFileDescriptor.MODE_READ_ONLY
+                )
+                if (fileDescriptor != null) {
+                    pdfRenderer = android.graphics.pdf.PdfRenderer(fileDescriptor)
+                    if (pdfRenderer.pageCount > 0) {
+                        page = pdfRenderer.openPage(0)
+                        
+                        // Scale the thumbnail properly to avoid massive memory usage
+                        // A 400x400 max dimension is usually enough for Grid View
+                        val density = 2f
+                        val width = (page.width * density).toInt().coerceAtMost(400)
+                        val height = (page.height * density).toInt().coerceAtMost(400)
+                        
+                        val thumbBitmap = android.graphics.Bitmap.createBitmap(
+                            width, height, android.graphics.Bitmap.Config.ARGB_8888
+                        )
+                        // Fill white background (PDFs are often transparent)
+                        thumbBitmap.eraseColor(android.graphics.Color.WHITE)
+                        
+                        page.render(
+                            thumbBitmap, null, null,
+                            android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                        )
+                        bitmap = thumbBitmap
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                loadError = true
+            } finally {
+                page?.close()
+                pdfRenderer?.close()
+                fileDescriptor?.close()
+            }
+        }
+    }
+
+    if (bitmap != null) {
+        androidx.compose.foundation.Image(
+            bitmap = bitmap!!.asImageBitmap(),
+            contentDescription = file.name,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+        )
+    } else {
+        Box(
+            modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            if (loadError) {
+                Icon(
+                    imageVector = getFileIcon(file.category),
+                    contentDescription = null,
+                    tint = getIconTint(file.category),
+                    modifier = Modifier.size(40.dp)
+                )
+            } else {
+                // Loading state (could just be empty background, which is what this box is)
+            }
+        }
+    }
+}

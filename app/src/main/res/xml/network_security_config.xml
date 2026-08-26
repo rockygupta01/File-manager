@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- By default, disallow cleartext traffic (HTTP) everywhere -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Exception for Localhost (LAN file transfer feature using NanoHTTPD doesn't use SSL by default) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <!-- For local Network LAN transfers, we allow local IPs -->
+        <domain includeSubdomains="true">192.168</domain>
+        <domain includeSubdomains="true">10.</domain>
+    </domain-config>
+</network-security-config>

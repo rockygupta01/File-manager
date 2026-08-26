@@ -174,3 +174,25 @@ interface CrashLogDao {
     @Query("DELETE FROM crash_logs WHERE id NOT IN (SELECT id FROM crash_logs ORDER BY timestamp DESC LIMIT 50)")
     suspend fun trimOldLogs()
 }
+
+// ===== Trash =====
+@Dao
+interface TrashDao {
+    @Query("SELECT * FROM trash_files ORDER BY deletedAt DESC")
+    fun getAllTrashedFiles(): Flow<List<TrashEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: TrashEntity): Long
+
+    @Query("SELECT * FROM trash_files WHERE id = :id")
+    suspend fun getById(id: Int): TrashEntity?
+
+    @Query("DELETE FROM trash_files WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
+    @Query("DELETE FROM trash_files WHERE deletedAt < :cutoffTimestamp")
+    suspend fun deleteExpired(cutoffTimestamp: Long)
+
+    @Query("DELETE FROM trash_files")
+    suspend fun clearAll()
+}

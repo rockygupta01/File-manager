@@ -7,11 +7,13 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.privacyfilemanager.feature.search.worker.SearchIndexWorker
+import com.privacyfilemanager.core.domain.worker.TrashCleanupWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -29,14 +31,24 @@ class FileManagerApp : Application(), Configuration.Provider {
         super.onCreate()
         setupLocalCrashHandler()
         scheduleSearchIndexing()
+        scheduleTrashCleanup()
     }
 
-    /** Re-indexes storage on each app start (KEEP = skip if already queued/running). */
     private fun scheduleSearchIndexing() {
         val request = OneTimeWorkRequestBuilder<SearchIndexWorker>().build()
         WorkManager.getInstance(this).enqueueUniqueWork(
             "search_index",
             ExistingWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    /** Runs daily to permanently delete trash files older than 30 days. */
+    private fun scheduleTrashCleanup() {
+        val request = androidx.work.PeriodicWorkRequestBuilder<TrashCleanupWorker>(1, TimeUnit.DAYS).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "trash_cleanup",
+            androidx.work.ExistingPeriodicWorkPolicy.KEEP,
             request
         )
     }

@@ -97,3 +97,16 @@ data class CrashLogEntity(
     val stackTrace: String,
     val deviceInfo: String
 )
+
+@Entity(tableName = "trash_files")
+data class TrashEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val originalPath: String,
+    val trashPath: String,
+    val deletedAt: Long = System.currentTimeMillis(),
+    val size: Long,
+    val name: String,
+    val mimeType: String
+)
+

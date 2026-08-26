@@ -23,6 +23,7 @@ import com.privacyfilemanager.feature.search.ui.SearchScreen
 import com.privacyfilemanager.feature.security.ui.SecurityVaultScreen
 import com.privacyfilemanager.feature.storage.ui.StorageAnalyzerScreen
 import com.privacyfilemanager.feature.viewer.ui.ViewerScreen
+import com.privacyfilemanager.feature.filemanager.ui.TrashScreen
 
 @Composable
 fun AppNavigation(
@@ -73,7 +74,8 @@ fun AppNavigation(
                 onNavigateToAutomation = { navController.navigate("automation") },
                 onNavigateToLan = { navController.navigate("lan") },
                 onNavigateToRoot = { navController.navigate("root") },
-                onNavigateToDevTools = { navController.navigate("devtools") }
+                onNavigateToDevTools = { navController.navigate("devtools") },
+                onNavigateToTrash = { navController.navigate("trash") }
             )
         }
         composable("storage") {
@@ -140,6 +142,9 @@ fun AppNavigation(
         }
         composable("devtools") {
             DevToolsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("trash") {
+            TrashScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

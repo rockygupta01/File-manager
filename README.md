@@ -210,7 +210,7 @@ erDiagram
 | `MANAGE_EXTERNAL_STORAGE` | Full file system access (Android 11+) |
 | `READ_MEDIA_IMAGES/VIDEO/AUDIO` | Media access (Android 13+) |
 | `READ/WRITE_EXTERNAL_STORAGE` | Legacy storage (Android ≤ 12/9) |
-| `ACCESS_WIFI_STATE` | Detect local IP for LAN transfer |
+| `INTERNET`, `ACCESS_WIFI_STATE`, `ACCESS_NETWORK_STATE` | Strictly utilized for the local wireless "PC Share" feature. The app's `network_security_config.xml` forbids outbound cleartext traffic to the broader internet. |
 | `FOREGROUND_SERVICE` | Background file operations & automation |
 | `POST_NOTIFICATIONS` | Operation progress & automation alerts |
 | `RECEIVE_BOOT_COMPLETED` | Re-schedule WorkManager on device restart |

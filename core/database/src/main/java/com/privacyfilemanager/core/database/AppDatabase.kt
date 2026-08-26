@@ -19,9 +19,10 @@ import com.privacyfilemanager.core.database.entity.*
         SearchIndexEntity::class,
         SearchHistoryEntity::class,
         AppLockConfigEntity::class,
-        CrashLogEntity::class
+        CrashLogEntity::class,
+        TrashEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,4 +35,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun searchHistoryDao(): SearchHistoryDao
     abstract fun appLockConfigDao(): AppLockConfigDao
     abstract fun crashLogDao(): CrashLogDao
+    abstract fun trashDao(): TrashDao
 }

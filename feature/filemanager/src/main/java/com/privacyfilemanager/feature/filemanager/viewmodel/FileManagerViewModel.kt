@@ -11,6 +11,7 @@ import com.privacyfilemanager.core.database.entity.BookmarkEntity
 import com.privacyfilemanager.core.database.entity.RecentFileEntity
 import com.privacyfilemanager.core.domain.model.*
 import com.privacyfilemanager.core.domain.repository.FileRepository
+import com.privacyfilemanager.core.domain.repository.TrashRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class FileManagerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val fileRepository: FileRepository,
+    private val trashRepository: TrashRepository,
     private val bookmarkDao: BookmarkDao,
     private val recentFileDao: RecentFileDao
 ) : ViewModel() {
@@ -215,13 +217,44 @@ class FileManagerViewModel @Inject constructor(
     fun deleteSelected() {
         viewModelScope.launch {
             try {
-                fileRepository.delete(_uiState.value.selectedFiles.toList())
+                val selectedPaths = _uiState.value.selectedFiles.toList()
+                val trashedIds = trashRepository.moveToTrash(selectedPaths)
                 clearSelection()
                 refreshCurrentDirectory()
+                
+                if (trashedIds.isNotEmpty()) {
+                    _uiState.update { it.copy(
+                        snackbarMessage = "${trashedIds.size} item(s) moved to Trash",
+                        undoTrashIds = trashedIds
+                    )}
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message) }
             }
         }
+    }
+
+    fun undoTrash() {
+        val idsToUndo = _uiState.value.undoTrashIds
+        if (idsToUndo.isEmpty()) return
+        
+        viewModelScope.launch {
+            var restoredCount = 0
+            for (id in idsToUndo) {
+                if (trashRepository.restoreFromTrash(id)) {
+                    restoredCount++
+                }
+            }
+            refreshCurrentDirectory()
+            _uiState.update { it.copy(
+                snackbarMessage = "$restoredCount item(s) restored",
+                undoTrashIds = emptyList()
+            )}
+        }
+    }
+    
+    fun dismissSnackbar() {
+        _uiState.update { it.copy(snackbarMessage = null, undoTrashIds = emptyList()) }
     }
 
     fun rename(path: String, newName: String) {
@@ -302,5 +335,7 @@ data class FileManagerUiState(
     val viewMode: ViewMode = ViewMode.LIST,
     val fileToOpen: FileItem? = null,
     val operationProgress: com.privacyfilemanager.core.domain.repository.CopyProgress? = null,
-    val storageInfo: com.privacyfilemanager.core.domain.repository.StorageInfo? = null // #16
+    val storageInfo: com.privacyfilemanager.core.domain.repository.StorageInfo? = null,
+    val snackbarMessage: String? = null,
+    val undoTrashIds: List<Int> = emptyList()
 )

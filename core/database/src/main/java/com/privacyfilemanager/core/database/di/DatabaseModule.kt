@@ -36,4 +36,5 @@ object DatabaseModule {
     @Provides fun provideSearchHistoryDao(db: AppDatabase): SearchHistoryDao = db.searchHistoryDao()
     @Provides fun provideAppLockConfigDao(db: AppDatabase): AppLockConfigDao = db.appLockConfigDao()
     @Provides fun provideCrashLogDao(db: AppDatabase): CrashLogDao = db.crashLogDao()
+    @Provides fun provideTrashDao(db: AppDatabase): TrashDao = db.trashDao()
 }

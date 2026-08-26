@@ -21,7 +21,7 @@ PrivaFiles is a **100% offline, privacy-first** Android file manager. We do not 
 |-----------|---------|
 | `MANAGE_EXTERNAL_STORAGE` | Browse and manage all files on device storage |
 | `READ_MEDIA_IMAGES/VIDEO/AUDIO` | Read media files for viewing and management |
-| `ACCESS_WIFI_STATE` | Detect local IP for LAN file transfer (no internet) |
+| `INTERNET` | Used *strictly* for the local wireless file transfer (LAN PC Upload) feature. We have enforced a strict network security configuration at the OS level that restricts cleartext connections solely to local network IP addresses (`192.168.x.x`, `10.x.x.x`, `localhost`). External server communication is blocked by design. |
 | `USE_BIOMETRIC` | Optional PIN/biometric app lock |
 | `POST_NOTIFICATIONS` | Notify when automation tasks (backup/cleanup) complete |
 | `FOREGROUND_SERVICE` | Run background automation tasks |
